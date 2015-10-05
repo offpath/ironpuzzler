@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <title>Admin Console</title>
+  </head>
+  <body>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    <div ng-app="adminApp" ng-controller="adminCtrl">
+      <table>
+	<tr ng-repeat="x in hunts">
+	  <td><a href="{{x.Path}}">{{x.Name}}</a></td>
+	  <td><a href="admin/{{x.Path}}">Admin</a></td>
+	  <td><button ng-click="deleteHunt(x.ID)">Delete</button></td>
+	</tr>
+      </table>
+      <form novalidate>
+	Hunt name: <input type="text" ng-model="newName"><br>
+	Hunt path: <input type="text" ng-model="newPath"><br>
+	<button ng-click="newHunt()">New Hunt</button>
+      </form>
+    </div>
+
+    <script src="/admin/js/admin.js"></script>
+  </body>
+</html>
