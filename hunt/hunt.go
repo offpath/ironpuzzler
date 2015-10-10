@@ -8,13 +8,13 @@ import (
 )
 
 const (
-	statePreLaunch = "Pre-launch"
-	stateEarlyAccess = "Novice access"
-	stateIngredients = "Ingredients released"
-	stateSolving = "Solving"
-	stateGrading = "Grading"
-	stateTallying = "Tallying Scores"
-	stateDone = "Done"
+	StatePreLaunch = 0
+	StateEarlyAccess = 1
+	StateIngredients = 2
+	StateSolving = 3
+	StateGrading = 4
+	StateTallying = 5
+	StateDone = 6
 
 	huntKind = "Hunt"
 )
@@ -27,7 +27,7 @@ type Hunt struct {
 	Name string
 	Path string
 	Ingredients string
-	State string
+	State int
 
 	ID string `datastore:"-"`
 	Key *datastore.Key `datastore:"-" json:"-"`
@@ -93,7 +93,7 @@ func New(c appengine.Context, name string, path string) *Hunt {
 	newHunt := &Hunt{
 		Name: name,
 		Path: path,
-		State: statePreLaunch,
+		State: StatePreLaunch,
 	}
 
 	// TODO(dneal): Ensure no collisions on path.

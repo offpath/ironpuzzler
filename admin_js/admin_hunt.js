@@ -1,13 +1,17 @@
 var app = angular.module('adminHuntApp', []);
 
 app.controller('adminHuntCtrl', function ($scope, $http) {
-	$scope.refresh = function() {
+	$scope.refreshHunt = function() {
 	    $http.get("/admin/api/hunt?hunt_id=" + huntId).success(function (response) {
 		    $scope.hunt = response;
-		    $scope.editable = ($scope.hunt.State == "Pre-launch")
-
+		    $scope.editable = ($scope.hunt.State == "Pre-launch");
+		    $scope.refreshTeams();
 		});
 	}
 
-	$scope.refresh();
+	$scope.refreshTeams = function() {
+
+	}
+
+	$scope.refreshHunt();
     });
