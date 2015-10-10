@@ -1,0 +1,20 @@
+<html ng-app="huntApp" ng-controller="huntCtrl">
+  <head>
+    <title>{{hunt.Name}}</title>
+  </head>
+  <body>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+
+    <h1>{{hunt.Name}}</h1>
+    <p ng-visible="info.Ingredients.Display">
+      Ingredients: {{info.Ingredients.Ingredients}}
+    </p>
+
+    <p ng-visible="info.Puzzles.Display">
+      Display some puzzles here!
+    </p>
+
+    <script>huntId={(.)}</script>
+    <script src="/js/hunt.js"></script>
+  </body>
+</html>
