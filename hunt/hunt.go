@@ -45,6 +45,13 @@ func (h *Hunt) Delete(c appengine.Context) {
 	}
 }
 
+func (h *Hunt) Write(c appengine.Context) {
+	_, err := datastore.Put(c, h.Key, h)
+	if err != nil {
+		c.Errorf("Write: %v", err)
+	}
+}
+
 func Path(c appengine.Context, path string) *Hunt {
 	var hunts []*Hunt
 	keys, err := datastore.NewQuery(huntKind).Filter("Path =", path).GetAll(c, &hunts)

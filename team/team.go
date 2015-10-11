@@ -68,3 +68,11 @@ func New(c appengine.Context, h *hunt.Hunt, name string, password string, novice
 	newTeam.enkey(k)
 	return newTeam
 }
+
+func (t *Team) Delete(c appengine.Context) {
+	err := datastore.Delete(c, t.Key)
+	if err != nil {
+		c.Errorf("Error: %v", err)
+		return
+	}
+}

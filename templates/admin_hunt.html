@@ -8,7 +8,12 @@
     <h1>{{hunt.Name}}</h1>
     <p>
       State: {{hunt.State}}<br>
-      Ingredients: <input type="text" ng-disabled="!editable" ng-model="ingredients"><br>
+      Ingredients: <input type="text" ng-disabled="!editable" ng-model="hunt.Ingredients"><br>
+      <button ng-click="updateIngredients(hunt.Ingredients)" ng-visible="!editable">Update ingredients</button>
+    </p>
+
+    <p>
+      TODO(dneal): Teams go here.
     </p>
 
     <script>huntId={(.)}</script>

@@ -83,7 +83,10 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		h = hunt.ID(c, id)
 	}
 
-	// TODO(dneal): Get team id.
+	var t *team.Team
+	if id := r.FormValue("team_id"); h != nil && id != "" {
+		t = team.ID(c, id)
+	}
 
 	var err error
 	switch path[3] {
@@ -97,12 +100,22 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		hunt.New(c, r.FormValue("name"), r.FormValue("path"))
 	case "deletehunt":
 		h.Delete(c)
+	case "updateingredients":
+		if h != nil {
+			h.Ingredients = r.FormValue("ingredients")
+			c.Errorf("indredients: %v", r.FormValue("ingredients"))
+			h.Write(c)
+		}
 	case "teams":
 
 	case "addteam":
-
+		if h != nil {
+			team.New(c, h, r.FormValue("name"), r.FormValue("password"), r.FormValue("novice") == "1")
+		}
 	case "deleteteam":
-
+		if t != nil {
+			t.Delete(c)
+		}
 	}
 	if err != nil {
 		c.Errorf("Error: %v", err)
