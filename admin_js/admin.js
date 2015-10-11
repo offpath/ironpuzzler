@@ -18,7 +18,7 @@ app.controller('adminCtrl', function ($scope, $http) {
 	}
 
 	$scope.deleteHunt = function(id) {
-	    $http.get("admin/api/deletehunt?id=" + id)
+	    $http.get("admin/api/deletehunt?hunt_id=" + id)
 	    .success(function (response) {
 		    // Umm, yay for eventual consistency, I guess?
 		    setTimeout(function () {$scope.refresh();}, 1000);

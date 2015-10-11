@@ -1,6 +1,8 @@
 package team
 
 import (
+	"net/http"
+
 	"hunt"
 
 	"appengine"
@@ -15,9 +17,11 @@ type Team struct {
 	Name string
 	Password string
 	Novice bool
+	Hunt *datastore.Key `json:"-"`
 
 	ID string `datastore:"-"`
 	Key *datastore.Key `datastore:"-" json:"-"`
+
 }
 
 func (t *Team) enkey(k *datastore.Key) {
@@ -57,6 +61,7 @@ func New(c appengine.Context, h *hunt.Hunt, name string, password string, novice
 		Name: name,
 		Password: password,
 		Novice: novice,
+		Hunt: h.Key,
 	}
 	
 	k := datastore.NewIncompleteKey(c, teamKind, h.Key)
@@ -67,6 +72,21 @@ func New(c appengine.Context, h *hunt.Hunt, name string, password string, novice
 	}
 	newTeam.enkey(k)
 	return newTeam
+}
+
+func SignIn(c appengine.Context, h *hunt.Hunt, r *http.Request) (t *Team, badSignIn bool) {
+	teamCookie, _ := r.Cookie("team_id")
+	passCookie, _ := r.Cookie("password")
+
+	if teamCookie == nil && passCookie == nil {
+		return nil, false
+	}
+
+	t = ID(c, teamCookie.Value)
+	if t == nil || !t.Hunt.Equal(h.Key) || t.Password != passCookie.Value {
+		return nil, true
+	}
+	return t, false
 }
 
 func (t *Team) Delete(c appengine.Context) {

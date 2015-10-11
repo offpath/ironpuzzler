@@ -14,6 +14,17 @@ import (
 	"team"
 )
 
+type TeamInfo struct {
+	Name string
+	ID string
+}
+
+type TeamSelector struct {
+	CurrentTeam string
+	BadSignIn bool
+	Teams []TeamInfo
+}
+
 type IngredientInfo struct {
 	Display bool
 	Ingredients string
@@ -25,6 +36,8 @@ type PuzzleInfo struct {
 }
 
 type PageInfo struct {
+	Name string
+	Teams TeamSelector
 	Ingredients IngredientInfo
 	Puzzles PuzzleInfo
 }
@@ -48,12 +61,20 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var t *team.Team
-	if id := r.FormValue("team_id"); id != "" {
-		t = team.ID(c, id)
-	}
+	t, badSignIn := team.SignIn(c, h, r)
 
 	var pageInfo PageInfo
+	
+	pageInfo.Name = h.Name
+
+	if t != nil {
+		pageInfo.Teams.CurrentTeam = t.Name
+	} else {
+		for _, t := range team.All(c, h) {
+			pageInfo.Teams.Teams = append(pageInfo.Teams.Teams, TeamInfo{t.Name, t.ID})
+		}
+	}
+	pageInfo.Teams.BadSignIn = badSignIn
 
 	if h.State >= hunt.StateIngredients ||
 		(h.State == hunt.StateEarlyAccess && t != nil && t.Novice) {
@@ -66,6 +87,10 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	enc.Encode(pageInfo)
+}
+
+func fillTeamSelector(c appengine.Context, h *hunt.Hunt, t *team.Team) {
+
 }
 
 func AdminHandler(w http.ResponseWriter, r *http.Request) {
