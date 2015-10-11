@@ -5,6 +5,7 @@ app.controller('adminHuntCtrl', function ($scope, $http) {
 	    $http.get("/admin/api/hunt?hunt_id=" + huntId).success(function (response) {
 		    $scope.hunt = response;
 		    $scope.editable = ($scope.hunt.State == 0);
+		    $scope.advanceable = ($scope.hunt.State != 5 && $scope.hunt.State != 7);
 		    $scope.refreshTeams();
 		});
 	}
@@ -39,7 +40,29 @@ app.controller('adminHuntCtrl', function ($scope, $http) {
 		      "&ingredients=" + encodeURIComponent($scope.hunt.Ingredients));
 	}
 
+	$scope.advanceState = function() {
+	    r = window.confirm("Are you sure you wish to advance the state? This cannot be undone.");
+	    if (r) {
+		$http.get("/admin/api/advancestate?hunt_id=" + huntId +
+			  "&currentstate=" + $scope.hunt.State).success(function (response) {
+				  $scope.refreshHunt();
+			      });
+	    }
+	}
+
+	$scope.stateTable = {
+	    0: "Pre-launch",
+	    1: "Novice ingredients released",
+	    2: "Ingredients released",
+	    3: "Solving",
+	    4: "Surveying",
+	    5: "Tallying results",
+	    6: "Tallying done",
+	    7: "Results released",
+	}
+
 	$scope.editable = false;
+	$scope.advanceable = false;
 	$scope.newTeamName = "";
 	$scope.newTeamPassword = "";
 	$scope.newTeamNovice = false;

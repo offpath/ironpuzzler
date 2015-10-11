@@ -4,6 +4,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"appengine"
@@ -118,6 +119,13 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	case "deleteteam":
 		if t != nil {
 			t.Delete(c)
+		}
+	case "advancestate":
+		if h != nil {
+			if strconv.Itoa(h.State) == r.FormValue("currentstate") && h.State < hunt.StateDone {
+				h.State++
+				h.Write(c)
+			}
 		}
 	}
 	if err != nil {

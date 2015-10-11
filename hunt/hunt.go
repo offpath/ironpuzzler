@@ -14,7 +14,8 @@ const (
 	StateSolving = 3
 	StateGrading = 4
 	StateTallying = 5
-	StateDone = 6
+	StateTallyingDone = 6
+	StateDone = 7
 
 	huntKind = "Hunt"
 )
