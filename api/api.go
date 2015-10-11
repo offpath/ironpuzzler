@@ -107,10 +107,13 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 			h.Write(c)
 		}
 	case "teams":
-
+		if h != nil {
+			teams := team.All(c, h)
+			err = enc.Encode(teams)
+		}
 	case "addteam":
 		if h != nil {
-			team.New(c, h, r.FormValue("name"), r.FormValue("password"), r.FormValue("novice") == "1")
+			team.New(c, h, r.FormValue("name"), r.FormValue("password"), r.FormValue("novice") == "true")
 		}
 	case "deleteteam":
 		if t != nil {
