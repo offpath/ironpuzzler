@@ -3,11 +3,13 @@ package api
 
 import (
 	"encoding/json"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"appengine"
+	"appengine/datastore"
 
 	"hunt"
 	"puzzle"
@@ -89,10 +91,6 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 	enc.Encode(pageInfo)
 }
 
-func fillTeamSelector(c appengine.Context, h *hunt.Hunt, t *team.Team) {
-
-}
-
 func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	path := strings.Split(r.URL.Path, "/")
 	if len(path) != 4 {
@@ -147,9 +145,9 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	case "advancestate":
 		if h != nil {
-			if strconv.Itoa(h.State) == r.FormValue("currentstate") && h.State < hunt.StateDone {
-				h.State++
-				h.Write(c)
+			currentState, err := strconv.Atoi(r.FormValue("currentstate"))
+			if err == nil {
+				advanceState(c, h, currentState)
 			}
 		}
 	}
@@ -159,3 +157,28 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func advanceState(c appengine.Context, h *hunt.Hunt, currentState int) {
+	err := datastore.RunInTransaction(c, func (c appengine.Context) error {
+		h := hunt.ID(c, h.ID)
+		if h == nil  || h.State != currentState {
+			// TODO(dneal): Return a real error.
+			return nil
+		}
+		switch h.State {
+		case hunt.StatePreLaunch:
+			teams := team.All(c, h)
+			nonPaperOrder := rand.Perm(len(teams))
+			paperOrder := rand.Perm(len(teams))
+			for i := range teams {
+				puzzle.New(c, h, teams[i], nonPaperOrder[i] + 1, false)
+				puzzle.New(c, h, teams[i], len(teams) + paperOrder[i] + 1, true)
+			}
+		}
+		h.State++
+		h.Write(c)
+		return nil
+	}, nil)
+	if err != nil {
+		c.Errorf("Error: %v", err)
+	}
+}

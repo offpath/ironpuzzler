@@ -27,7 +27,12 @@
     </p>
 
     <p ng-show="info.Puzzles.Display">
-      Display some puzzles here!
+      Puzzles:<br>
+      <ul>
+	<li ng-repeat="p in info.Puzzles.Puzzles">
+	  {{p.Number}}) {{p.Paper}} {{p.Name}} {{p.Answer}}
+	</li>
+      </ul>
     </p>
 
     <script>huntId={(.)}</script>
