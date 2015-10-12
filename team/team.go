@@ -45,7 +45,7 @@ func ID(c appengine.Context, id string) *Team {
 
 func All(c appengine.Context, h *hunt.Hunt) []*Team {
 	var teams []*Team
-	keys, err := datastore.NewQuery(teamKind).Ancestor(h.Key).GetAll(c, &teams)
+	keys, err := datastore.NewQuery(teamKind).Ancestor(h.Key).Order("Name").GetAll(c, &teams)
 	if err != nil {
 		c.Errorf("Error: %v", err)
 		return nil

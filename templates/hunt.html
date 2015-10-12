@@ -9,17 +9,19 @@
     <h1>{{info.Name}}</h1>
 
     <p ng-show="signedIn">
-      Welcome {{info.Teams.CurrentTeam}}!<br>
+      Welcome {{info.Teams.CurrentTeam}}! 
       <button ng-click="logout()">Logout</button>
     </p>
 
     <p ng-show="!signedIn">
-      <select ng-model="teamID">
-	<option value="" selected>--Select team--</option>
-	<option ng-repeat="t in info.Teams.Teams" ng-value="t.ID">{{t.Name}}</option>
-      </select>
-      <input type="text" ng-model="password">
-      <button ng-click="login()">Login</button>
+      <form novalidate ng-show="!signedIn">
+	<select ng-model="teamID">
+	  <option value="" selected>--Select team--</option>
+	  <option ng-repeat="t in info.Teams.Teams" ng-value="t.ID">{{t.Name}}</option>
+	</select>
+	<input type="text" ng-model="password">
+	<button ng-click="login()">Login</button>
+      </form>
     </p>
 
     <p ng-show="info.Ingredients.Display">

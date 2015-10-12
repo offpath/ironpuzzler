@@ -83,7 +83,7 @@ func ID(c appengine.Context, id string) *Hunt {
 
 func All(c appengine.Context) []*Hunt {
 	var hunts []*Hunt
-	keys, err := datastore.NewQuery(huntKind).GetAll(c, &hunts)
+	keys, err := datastore.NewQuery(huntKind).Order("Path").GetAll(c, &hunts)
 	if err != nil {
 		c.Errorf("Error: %v", err)
 		return nil

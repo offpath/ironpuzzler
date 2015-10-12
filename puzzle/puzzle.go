@@ -44,7 +44,7 @@ func ID(c appengine.Context, id string) *Puzzle {
 
 func All(c appengine.Context, h *hunt.Hunt, t *team.Team) []*Puzzle {
 	var puzzles []*Puzzle
-	q := datastore.NewQuery(puzzleKind).Ancestor(h.Key)
+	q := datastore.NewQuery(puzzleKind).Ancestor(h.Key).Order("Number")
 	if t != nil {
 		q = q.Filter("Team =", t.Key)
 	}

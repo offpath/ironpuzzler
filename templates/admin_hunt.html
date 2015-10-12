@@ -18,8 +18,10 @@
 
     <p>
       <h3>Ingredients</h3>
-      Ingredients: <input type="text" ng-disabled="!editable" ng-model="hunt.Ingredients"><br>
-      <button ng-click="updateIngredients(hunt.Ingredients)" ng-show="editable">Update ingredients</button>
+      <form novalidate>
+	Ingredients: <input type="text" ng-disabled="!editable" ng-model="hunt.Ingredients"><br>
+	<button ng-click="updateIngredients(hunt.Ingredients)" ng-show="editable">Update ingredients</button>
+      </form>
     </p>
 
     <p>
@@ -42,10 +44,12 @@
 
     <p ng-show="editable">
       <h3>Add new team:</h3>
-      Name: <input type="text" ng-model="newTeamName"><br>
-      Password: <input type="text" ng-model="newTeamPassword"><br>
-      Novice: <input type="checkbox" ng-model="newTeamNovice"><br>
-      <button ng-click="addTeam()">Add</button>
+      <form novalidate>
+	Name: <input type="text" ng-model="newTeamName"><br>
+	Password: <input type="text" ng-model="newTeamPassword"><br>
+	Novice: <input type="checkbox" ng-model="newTeamNovice"><br>
+	<button ng-click="addTeam()">Add</button>
+      </form>
     </p>
 
     <script>huntId={(.)}</script>
