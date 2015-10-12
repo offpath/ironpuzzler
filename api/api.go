@@ -65,8 +65,26 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 
 	t, badSignIn := team.SignIn(c, h, r)
 
+	var err error
+	switch path[2] {
+	case "hunt":
+		err = enc.Encode(huntInfo(c, h, t, badSignIn))
+	case "updatepuzzle":
+		p := puzzle.ID(c, r.FormValue("puzzleid"))
+		if p != nil && p.Team.Equal(t.Key) {
+			p.Name = r.FormValue("name")
+			p.Answer = r.FormValue("answer")
+			p.Write(c)
+		}
+	}
+
+	if err != nil {
+		c.Errorf("Error: %v", err)
+	}
+}
+
+func huntInfo(c appengine.Context, h *hunt.Hunt, t *team.Team, badSignIn bool) *PageInfo {
 	var pageInfo PageInfo
-	
 	pageInfo.Name = h.Name
 
 	if t != nil {
@@ -87,8 +105,7 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 			pageInfo.Puzzles.Puzzles = puzzle.All(c, h, t)
 		}
 	}
-
-	enc.Encode(pageInfo)
+	return &pageInfo
 }
 
 func AdminHandler(w http.ResponseWriter, r *http.Request) {

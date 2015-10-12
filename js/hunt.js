@@ -26,6 +26,21 @@ app.controller('huntCtrl', ['$scope', '$cookies', '$http', function ($scope, $co
 	    $scope.refreshHunt();
 	}
 
+	$scope.updatePuzzles = function() {
+	    for (var i = 0; i < $scope.info.Puzzles.Puzzles.length; i++) {
+		var p = $scope.info.Puzzles.Puzzles[i];
+		$http.get("/api/updatepuzzle?hunt_id=" + huntId +
+			  "&puzzleid=" + p.ID +
+			  "&name=" + p.Name +
+			  "&answer=" + p.Answer);
+	    }
+	}
+
+	$scope.puzzleFormat = {
+	    false: "Non-paper",
+	    true: "Paper",
+	}
+
 	$scope.signedIn = false;
 	$scope.teamID = "";
 	$scope.password = "";

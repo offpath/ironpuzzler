@@ -33,6 +33,13 @@ func (p *Puzzle) enkey(k *datastore.Key) {
 	p.ID = k.Encode()
 }
 
+func (p *Puzzle) Write(c appengine.Context) {
+	_, err := datastore.Put(c, p.Key, p)
+	if err != nil {
+		c.Errorf("Write: %v", err)
+	}
+}
+
 func (p *Puzzle) Admin(c appengine.Context) *AdminPuzzle {
 	var teamName string
 	if t := team.Key(c, p.Team); t != nil {

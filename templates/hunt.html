@@ -37,11 +37,23 @@
     <span ng-show="info.Puzzles.Display"> 
       <p>
 	Puzzles:<br>
-	<ul>
-	  <li ng-repeat="p in info.Puzzles.Puzzles">
-	    {{p.Number}}) {{p.Paper}} {{p.Name}} {{p.Answer}}
-	  </li>
-	</ul>
+	<form novalidate>
+	  <table>
+	    <tr>
+	      <td>Number</td>
+	      <td>Format</td>
+	      <td>Name</td>
+	      <td>Answer</td>
+	    </tr>
+	    <tr ng-repeat="p in info.Puzzles.Puzzles">
+	      <td>{{p.Number}}</td>
+	      <td>{{puzzleFormat[p.Paper]}}</td>
+	      <td><input type="text" ng-model="p.Name"></td>
+	      <td><input type="text" ng-model="p.Answer"></td>
+	    </tr>
+	  </table>
+	  <button ng-click="updatePuzzles()">Update</button>
+	</form>
       </p>
     </span>
 
