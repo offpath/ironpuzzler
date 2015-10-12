@@ -16,13 +16,39 @@
       </span>
     </p>
 
-    <p>
-      <h3>Ingredients</h3>
-      <form novalidate>
-	Ingredients: <input type="text" ng-disabled="!editable" ng-model="hunt.Ingredients"><br>
-	<button ng-click="updateIngredients(hunt.Ingredients)" ng-show="editable">Update ingredients</button>
-      </form>
-    </p>
+    <span ng-show="hasPuzzles">
+      <p>
+	<h3>Puzzles</h3>
+	<table>
+	  <tr>
+	    <td>Number</td>
+	    <td>Paper</td>
+	    <td>Team</td>
+	    <td>Name</td>
+	    <td>Answer</td>
+	  </tr>
+	  <tr ng-repeat="p in puzzles">
+	    <td>{{p.Number}}</td>
+	    <td>{{p.Paper}}</td>
+	    <td>{{p.TeamName}}</td>
+	    <td>{{p.Name}}</td>
+	    <td>{{p.Answer}}</td>
+	  </tr>
+	</table>
+      </p>
+    </span>
+
+    <span ng-show="editable">
+      <p>
+	<h3>Add new team:</h3>
+	<form novalidate>
+	  Name: <input type="text" ng-model="newTeamName"><br>
+	  Password: <input type="text" ng-model="newTeamPassword"><br>
+	  Novice: <input type="checkbox" ng-model="newTeamNovice"><br>
+	  <button ng-click="addTeam()">Add</button>
+	</form>
+      </p>
+    </span>
 
     <p>
       <h3>Teams</h3>
@@ -42,13 +68,11 @@
       </table>
     </p>
 
-    <p ng-show="editable">
-      <h3>Add new team:</h3>
+    <p>
+      <h3>Ingredients</h3>
       <form novalidate>
-	Name: <input type="text" ng-model="newTeamName"><br>
-	Password: <input type="text" ng-model="newTeamPassword"><br>
-	Novice: <input type="checkbox" ng-model="newTeamNovice"><br>
-	<button ng-click="addTeam()">Add</button>
+	Ingredients: <input type="text" ng-disabled="!editable" ng-model="hunt.Ingredients"><br>
+	<button ng-click="updateIngredients(hunt.Ingredients)" ng-show="editable">Update ingredients</button>
       </form>
     </p>
 

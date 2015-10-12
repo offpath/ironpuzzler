@@ -23,9 +23,25 @@ type Puzzle struct {
 	Key *datastore.Key `datastore:"-" json:"-"`
 }
 
+type AdminPuzzle struct {
+	Puzzle
+	TeamName string
+}
+
 func (p *Puzzle) enkey(k *datastore.Key) {
 	p.Key = k
 	p.ID = k.Encode()
+}
+
+func (p *Puzzle) Admin(c appengine.Context) *AdminPuzzle {
+	var teamName string
+	if t := team.Key(c, p.Team); t != nil {
+		teamName = t.Name
+	}
+	return &AdminPuzzle{
+		Puzzle: *p,
+		TeamName: teamName,
+	}
 }
 
 func ID(c appengine.Context, id string) *Puzzle {

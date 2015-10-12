@@ -150,7 +150,17 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 				advanceState(c, h, currentState)
 			}
 		}
+	case "puzzles":
+		if h != nil {
+			puzzles := puzzle.All(c, h, nil)
+			var admin []*puzzle.AdminPuzzle
+			for _, p := range puzzles {
+				admin = append(admin, p.Admin(c))
+			}
+			err = enc.Encode(admin)
+		}
 	}
+	
 	if err != nil {
 		c.Errorf("Error: %v", err)
 		return

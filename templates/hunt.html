@@ -8,34 +8,42 @@
 
     <h1>{{info.Name}}</h1>
 
-    <p ng-show="signedIn">
-      Welcome {{info.Teams.CurrentTeam}}! 
-      <button ng-click="logout()">Logout</button>
-    </p>
+    <span ng-show="signedIn">
+      <p>
+	Welcome {{info.Teams.CurrentTeam}}! 
+	<button ng-click="logout()">Logout</button>
+      </p>
+    </span>
 
-    <p ng-show="!signedIn">
-      <form novalidate ng-show="!signedIn">
-	<select ng-model="teamID">
-	  <option value="" selected>--Select team--</option>
-	  <option ng-repeat="t in info.Teams.Teams" ng-value="t.ID">{{t.Name}}</option>
-	</select>
-	<input type="text" ng-model="password">
-	<button ng-click="login()">Login</button>
-      </form>
-    </p>
+    <span ng-show="!signedIn">
+      <p>
+	<form novalidate>
+	  <select ng-model="teamID">
+	    <option value="" selected>--Select team--</option>
+	    <option ng-repeat="t in info.Teams.Teams" ng-value="t.ID">{{t.Name}}</option>
+	  </select>
+	  <input type="text" ng-model="password">
+	  <button ng-click="login()">Login</button>
+	</form>
+      </p>
+    </span>
 
-    <p ng-show="info.Ingredients.Display">
-      Ingredients: {{info.Ingredients.Ingredients}}
-    </p>
+    <span ng-show="info.Ingredients.Display">
+      <p>
+	Ingredients: {{info.Ingredients.Ingredients}}
+      </p>
+    </span>
 
-    <p ng-show="info.Puzzles.Display">
-      Puzzles:<br>
-      <ul>
-	<li ng-repeat="p in info.Puzzles.Puzzles">
-	  {{p.Number}}) {{p.Paper}} {{p.Name}} {{p.Answer}}
-	</li>
-      </ul>
-    </p>
+    <span ng-show="info.Puzzles.Display"> 
+      <p>
+	Puzzles:<br>
+	<ul>
+	  <li ng-repeat="p in info.Puzzles.Puzzles">
+	    {{p.Number}}) {{p.Paper}} {{p.Name}} {{p.Answer}}
+	  </li>
+	</ul>
+      </p>
+    </span>
 
     <script>huntId={(.)}</script>
     <script src="/js/hunt.js"></script>

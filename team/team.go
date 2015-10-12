@@ -34,8 +34,12 @@ func ID(c appengine.Context, id string) *Team {
 	if err != nil {
 		return nil
 	}
+	return Key(c, k)
+}
+
+func Key(c appengine.Context, k *datastore.Key) *Team {
 	var t Team
-	err = datastore.Get(c, k, &t)
+	err := datastore.Get(c, k, &t)
 	if err != nil {
 		return nil
 	}

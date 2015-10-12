@@ -6,7 +6,11 @@ app.controller('adminHuntCtrl', function ($scope, $http) {
 		    $scope.hunt = response;
 		    $scope.editable = ($scope.hunt.State == 0);
 		    $scope.advanceable = ($scope.hunt.State != 5 && $scope.hunt.State != 7);
+		    $scope.hasPuzzles = ($scope.hunt.State != 0);
 		    $scope.refreshTeams();
+		    if ($scope.hasPuzzles) {
+			$scope.refreshPuzzles();
+		    }
 		});
 	}
 
@@ -16,6 +20,12 @@ app.controller('adminHuntCtrl', function ($scope, $http) {
 		});
 	}
 
+	$scope.refreshPuzzles = function() {
+	    $http.get("/admin/api/puzzles?hunt_id=" + huntId).success(function (response) {
+		    $scope.puzzles = response;
+		});
+	}
+	
 	$scope.addTeam = function() {
 	    $http.get("/admin/api/addteam?hunt_id=" + huntId +
 		      "&name=" + encodeURIComponent($scope.newTeamName) +
@@ -66,5 +76,6 @@ app.controller('adminHuntCtrl', function ($scope, $http) {
 	$scope.newTeamName = "";
 	$scope.newTeamPassword = "";
 	$scope.newTeamNovice = false;
+	$scope.hasPuzzles = false;
 	$scope.refreshHunt();
     });
