@@ -42,6 +42,7 @@ func (t *Team) Throttle(c appengine.Context) bool {
 	now := time.Now()
 	if len(t.Attempts) < 2 {
 		t.Attempts = append(t.Attempts, now)
+		t.Write(c)
 		return false
 	}
 	if now.Sub(t.Attempts[0]).Minutes() > 1.0 {
@@ -49,7 +50,12 @@ func (t *Team) Throttle(c appengine.Context) bool {
 		t.Write(c)
 		return false
 	}
+	c.Errorf("Throttle!!")
 	return true
+}
+
+func (t *Team) ReRead(c appengine.Context) *Team {
+	return Key(c, t.Key)
 }
 
 func ID(c appengine.Context, id string) *Team {

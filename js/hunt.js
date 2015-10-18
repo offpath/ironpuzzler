@@ -32,9 +32,14 @@ app.controller('huntCtrl', ['$scope', '$cookies', '$http', function ($scope, $co
 	    console.log(message);
 	}
 
-	$scope.submitAnswer = function() {
-	    // TODO(dneal): fixme.
-	    $http.get("/api/submitanswer?hunt_id=" + huntId);
+	$scope.submitAnswer = function(pid, answer) {
+	    console.log(pid);
+	    console.log(answer);
+	    $http.get("/api/submitanswer?hunt_id=" + huntId +
+		      "&puzzleid=" + pid +
+		      "&answer=" + encodeURIComponent(answer)). success(function (response) {
+			      window.alert(response);
+			  });
 	}
 
 	$scope.login = function() {
@@ -56,8 +61,8 @@ app.controller('huntCtrl', ['$scope', '$cookies', '$http', function ($scope, $co
 		var p = $scope.info.Puzzles.Puzzles[i];
 		$http.get("/api/updatepuzzle?hunt_id=" + huntId +
 			  "&puzzleid=" + p.ID +
-			  "&name=" + p.Name +
-			  "&answer=" + p.Answer);
+			  "&name=" + encodeURIComponent(p.Name) +
+			  "&answer=" + encodeURIComponent(p.Answer));
 	    }
 	}
 

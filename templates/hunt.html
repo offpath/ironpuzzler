@@ -70,7 +70,7 @@
 	  <td ng-show="info.Leaderboard.Answerable">
 	    <form novalidate ng-show="p.Updatable.Answerable">
 	      <input type="text" ng-model="p.Answer">
-	      <button ng-click="submitAnswer()">Submit</button>
+	      <button ng-click="submitAnswer(p.ID, p.Answer)">Submit</button>
 	    </form>
 	    <span ng-show="p.Updatable.Solved">{{p.Updatable.GrantedPoints}}</span>
 	  </td>

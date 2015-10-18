@@ -7,6 +7,7 @@ import (
 	"appengine"
 	"appengine/datastore"
 
+	"strings"
 	"time"
 )
 
@@ -52,6 +53,10 @@ func (p *Puzzle) enkey(k *datastore.Key) {
 	p.ID = k.Encode()
 }
 
+func (p *Puzzle) ReRead(c appengine.Context) *Puzzle {
+	return Key(c, p.Key)
+}
+
 func (p *Puzzle) Write(c appengine.Context) {
 	_, err := datastore.Put(c, p.Key, p)
 	if err != nil {
@@ -80,6 +85,24 @@ func (p *Puzzle) Admin(c appengine.Context) *AdminPuzzle {
 	}
 }
 
+func normalize(str string) string {
+	tmp := ""
+	for _, c := range strings.ToLower(str) {
+		if c >= 'a' && c <= 'z' {
+			tmp += string(c)
+		}
+	}
+	return tmp
+}
+
+func (p *Puzzle) SubmitAnswer(c appengine.Context, h *hunt.Hunt, t *team.Team, answer string) bool {
+	if normalize(p.Answer) != normalize(answer) {
+		return false
+	}
+	// TODO(dneal): Add solves to table.
+	return true
+}
+
 func ID(c appengine.Context, id string) *Puzzle {
 	k, err := datastore.DecodeKey(id)
 	if err != nil {
@@ -87,6 +110,16 @@ func ID(c appengine.Context, id string) *Puzzle {
 	}
 	var p Puzzle
 	err = datastore.Get(c, k, &p)
+	if err != nil {
+		return nil
+	}
+	p.enkey(k)
+	return &p
+}
+
+func Key(c appengine.Context, k *datastore.Key) *Puzzle {
+	var p Puzzle
+	err := datastore.Get(c, k, &p)
 	if err != nil {
 		return nil
 	}
@@ -128,3 +161,4 @@ func New(c appengine.Context, h *hunt.Hunt, t *team.Team, number int, paper bool
 	newPuzzle.enkey(k)
 	return newPuzzle
 }
+

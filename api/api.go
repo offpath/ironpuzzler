@@ -85,11 +85,19 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 
 	t, badSignIn := team.SignIn(c, h, r)
 
+	var p *puzzle.Puzzle
+	if id := r.FormValue("puzzleid"); id != "" {
+		p = puzzle.ID(c, id)
+	}
+
 	var err error
 	switch path[2] {
 	case "hunt":
 		err = enc.Encode(huntInfo(c, h, t, badSignIn))
 	case "updatepuzzle":
+		if t == nil {
+			break
+		}
 		p := puzzle.ID(c, r.FormValue("puzzleid"))
 		if p != nil && p.Team.Equal(t.Key) {
 			p.Name = r.FormValue("name")
@@ -97,14 +105,34 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 			p.Write(c)
 		}
 	case "leaderboard":
-		err = enc.Encode(updatableProgressInfo(c, h, t, r.FormValue("puzzleid")))
+		err = enc.Encode(updatableProgressInfo(c, h, t, p))
 	case "submitanswer":
-		if t.Throttle(c) {
-			err = enc.Encode("throttled")
-		} else {
-			broadcast.Send(c, h, "test")
-			err = enc.Encode("correct")
+		if t == nil || p == nil {
+			break
 		}
+		var throttled, correct bool
+		err = datastore.RunInTransaction(c, func (c appengine.Context) error {
+			t := t.ReRead(c)
+			p := p.ReRead(c)
+			if t.Throttle(c) {
+				throttled = true
+			} else {
+				correct = p.SubmitAnswer(c, h, t, r.FormValue("answer"))
+			}
+			return nil
+		}, nil)
+		var outcome string
+		if err != nil {
+			outcome = "Error, try again!"
+		} else if throttled {
+			outcome = "Throttled"
+		} else if correct {
+			outcome = "Correct!"
+			broadcast.SendUpdatePuzzle(c, h, p)
+		} else {
+			outcome = "Incorrect"
+		}
+		err = enc.Encode(outcome)
 	}
 
 
@@ -113,13 +141,10 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func updatableProgressInfo(c appengine.Context, h *hunt.Hunt, t *team.Team, pid string) map[string]puzzle.UpdatableProgressInfo {
+func updatableProgressInfo(c appengine.Context, h *hunt.Hunt, t *team.Team, p *puzzle.Puzzle) map[string]puzzle.UpdatableProgressInfo {
 	result := map[string]puzzle.UpdatableProgressInfo{}
-	if pid != "" {
-		p := puzzle.ID(c, pid)
-		if p != nil {
-			result[pid] = p.UpdatableProgressInfo(c, h, t)
-		}
+	if p != nil {
+		result[p.ID] = p.UpdatableProgressInfo(c, h, t)
 	} else {
 		for _, p := range puzzle.All(c, h, nil) {
 			result[p.ID] = p.UpdatableProgressInfo(c, h, t)

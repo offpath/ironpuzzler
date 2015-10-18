@@ -9,11 +9,16 @@ import (
 	"appengine/datastore"
 
 	"hunt"
+	"puzzle"
 	"team"
 )
 
+type MessageType int
+
 const (
 	leaderboardListenerKind = "LeaderboardListener"
+	UpdatePuzzle MessageType = 0
+	RefreshPage
 )
 
 type LeaderboardListener struct {
@@ -54,7 +59,15 @@ func RemoveListener(c appengine.Context, str string) {
 	}
 }
 
-func Send(c appengine.Context, h *hunt.Hunt, str string) {
+func SendUpdatePuzzle(c appengine.Context, h *hunt.Hunt, p *puzzle.Puzzle) {
+	send(c, h, fmt.Sprintf("update: %s", p.ID))
+}
+
+func SendRefresh(c appengine.Context, h *hunt.Hunt) {
+	send(c, h, "refresh")
+}
+
+func send(c appengine.Context, h *hunt.Hunt, str string) {
 	var listeners []LeaderboardListener
 	_, err := datastore.NewQuery(leaderboardListenerKind).Ancestor(h.Key).GetAll(c, &listeners)
 	if err != nil {
