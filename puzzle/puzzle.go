@@ -13,6 +13,7 @@ import (
 
 const (
 	puzzleKind = "Puzzle"
+	solveKind = "Solve"
 	maxPointValue = 15
 	minPointValue = 10
 )
@@ -33,6 +34,7 @@ type Solve struct {
 	Team *datastore.Key
 	Puzzle *datastore.Key
 	Time time.Time
+	Points int
 }
 
 type AdminPuzzle struct {
@@ -99,7 +101,33 @@ func (p *Puzzle) SubmitAnswer(c appengine.Context, h *hunt.Hunt, t *team.Team, a
 	if normalize(p.Answer) != normalize(answer) {
 		return false
 	}
-	// TODO(dneal): Add solves to table.
+	// query for Solves mathing h, p, t
+	// if none, add new solve + decrement point value
+	// write puzzle
+
+	keys, err := datastore.NewQuery(solveKind).Ancestor(h.Key).Filter("Puzzle =", p.Key).Filter("Team =", t.Key).KeysOnly().GetAll(c, nil)
+	if err != nil {
+		return false
+	}
+	if len(keys) > 0 {
+		// The answer is correct, but the team has already solved the puzzle.
+		return true
+	}
+	solve := &Solve{
+		Team: t.Key,
+		Puzzle: p.Key,
+		Time: time.Now(),
+		Points: p.PointValue,
+	}
+	k := datastore.NewIncompleteKey(c, solveKind, h.Key)
+	k, err = datastore.Put(c, k, solve)
+	if err != nil {
+		return false
+	}
+	if p.PointValue > minPointValue {
+		p.PointValue--
+		p.Write(c)
+	}
 	return true
 }
 

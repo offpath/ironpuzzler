@@ -29,7 +29,12 @@ app.controller('huntCtrl', ['$scope', '$cookies', '$http', function ($scope, $co
 	}
 
 	$scope.onMessage = function(message) {
-	    console.log(message);
+	    if (message == "refresh") {
+		$scope.refreshHunt();
+	    } else {
+		$http.get("/api/leaderboard?hunt_id=" + huntId +
+			  "&puzzleid=" + message).success($scope.updateLeaderboard);
+	    }
 	}
 
 	$scope.submitAnswer = function(pid, answer) {

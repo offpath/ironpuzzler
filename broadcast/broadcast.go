@@ -60,7 +60,7 @@ func RemoveListener(c appengine.Context, str string) {
 }
 
 func SendUpdatePuzzle(c appengine.Context, h *hunt.Hunt, p *puzzle.Puzzle) {
-	send(c, h, fmt.Sprintf("update: %s", p.ID))
+	send(c, h, fmt.Sprintf("%s", p.ID))
 }
 
 func SendRefresh(c appengine.Context, h *hunt.Hunt) {
