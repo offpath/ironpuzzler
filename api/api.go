@@ -105,7 +105,16 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 			p.Write(c)
 		}
 	case "leaderboard":
-		err = enc.Encode(updatableProgressInfo(c, h, t, p))
+		var result map[string]puzzle.UpdatableProgressInfo
+		err = datastore.RunInTransaction(c, func (c appengine.Context) error {
+			result = updatableProgressInfo(c, h, t, p)
+			return nil
+		}, nil)
+		if err != nil {
+			c.Errorf("Error: %v", err)
+			return
+		}
+		err = enc.Encode(result)
 	case "submitanswer":
 		if t == nil || p == nil {
 			break
