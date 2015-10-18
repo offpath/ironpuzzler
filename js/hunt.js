@@ -9,7 +9,32 @@ app.controller('huntCtrl', ['$scope', '$cookies', '$http', function ($scope, $co
 			window.alert("Bad password");
 			$scope.logout();
 		    }
+		    console.log(response);
+		    if ($scope.info.Leaderboard.Token != "") {
+			$scope.channel = new goog.appengine.Channel($scope.info.Leaderboard.Token);
+			$scope.socket = $scope.channel.open();
+			$scope.socket.onmessage = $scope.onMessage;
+			$http.get("/api/leaderboard?hunt_id=" + huntId).success($scope.updateLeaderboard);
+		    }
 		});
+	}
+
+	$scope.updateLeaderboard = function(response) {
+	    for (var i = 0; i < $scope.info.Leaderboard.Progress.length; i++) {
+		var id = $scope.info.Leaderboard.Progress[i].ID;
+		if (id in response) {
+		    $scope.info.Leaderboard.Progress[i].Updatable = response[id];
+		}
+	    }
+	}
+
+	$scope.onMessage = function(message) {
+	    console.log(message);
+	}
+
+	$scope.submitAnswer = function() {
+	    // TODO(dneal): fixme.
+	    $http.get("/api/submitanswer?hunt_id=" + huntId);
 	}
 
 	$scope.login = function() {

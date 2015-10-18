@@ -11,9 +11,14 @@ import (
 	"appengine"
 	"appengine/datastore"
 
+	"broadcast"
 	"hunt"
 	"puzzle"
 	"team"
+)
+
+const (
+	leaderboardListenerKind = "LeaderboardListener"
 )
 
 type TeamInfo struct {
@@ -37,11 +42,26 @@ type PuzzleInfo struct {
 	Puzzles []*puzzle.Puzzle
 }
 
+type ProgressInfo struct {
+	Number int
+	Name string
+	ID string
+	Updatable puzzle.UpdatableProgressInfo
+}
+
+type LeaderboardInfo struct {
+	Display bool
+	Answerable bool
+	Token string
+	Progress []*ProgressInfo
+}
+
 type PageInfo struct {
 	Name string
 	Teams TeamSelector
 	Ingredients IngredientInfo
 	Puzzles PuzzleInfo
+	Leaderboard LeaderboardInfo
 }
 
 func HuntHandler(w http.ResponseWriter, r *http.Request) {
@@ -76,11 +96,36 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 			p.Answer = r.FormValue("answer")
 			p.Write(c)
 		}
+	case "leaderboard":
+		err = enc.Encode(updatableProgressInfo(c, h, t, r.FormValue("puzzleid")))
+	case "submitanswer":
+		if t.Throttle(c) {
+			err = enc.Encode("throttled")
+		} else {
+			broadcast.Send(c, h, "test")
+			err = enc.Encode("correct")
+		}
 	}
+
 
 	if err != nil {
 		c.Errorf("Error: %v", err)
 	}
+}
+
+func updatableProgressInfo(c appengine.Context, h *hunt.Hunt, t *team.Team, pid string) map[string]puzzle.UpdatableProgressInfo {
+	result := map[string]puzzle.UpdatableProgressInfo{}
+	if pid != "" {
+		p := puzzle.ID(c, pid)
+		if p != nil {
+			result[pid] = p.UpdatableProgressInfo(c, h, t)
+		}
+	} else {
+		for _, p := range puzzle.All(c, h, nil) {
+			result[p.ID] = p.UpdatableProgressInfo(c, h, t)
+		}
+	}
+	return result
 }
 
 func huntInfo(c appengine.Context, h *hunt.Hunt, t *team.Team, badSignIn bool) *PageInfo {
@@ -105,7 +150,26 @@ func huntInfo(c appengine.Context, h *hunt.Hunt, t *team.Team, badSignIn bool) *
 			pageInfo.Puzzles.Puzzles = puzzle.All(c, h, t)
 		}
 	}
+
+	if h.State == hunt.StateSolving {
+		fillLeaderboardInfo(c, h, t, &pageInfo.Leaderboard)
+	}
+
 	return &pageInfo
+}
+
+func fillLeaderboardInfo(c appengine.Context, h *hunt.Hunt, t *team.Team, l *LeaderboardInfo) {
+	puzzles := puzzle.All(c, h, nil) 
+	for _, p := range puzzles {
+		l.Progress = append(l.Progress, &ProgressInfo{
+			Number: p.Number,
+			Name: p.Name,
+			ID: p.ID,
+		})
+	}
+	l.Token = broadcast.AddListener(c, h, t)
+	l.Display = true
+	l.Answerable = t != nil
 }
 
 func AdminHandler(w http.ResponseWriter, r *http.Request) {
@@ -144,7 +208,6 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	case "updateingredients":
 		if h != nil {
 			h.Ingredients = r.FormValue("ingredients")
-			c.Errorf("indredients: %v", r.FormValue("ingredients"))
 			h.Write(c)
 		}
 	case "teams":

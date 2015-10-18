@@ -2,6 +2,7 @@ package team
 
 import (
 	"net/http"
+	"time"
 
 	"hunt"
 
@@ -18,6 +19,7 @@ type Team struct {
 	Password string
 	Novice bool
 	Hunt *datastore.Key `json:"-"`
+	Attempts []time.Time
 
 	ID string `datastore:"-"`
 	Key *datastore.Key `datastore:"-" json:"-"`
@@ -27,6 +29,27 @@ type Team struct {
 func (t *Team) enkey(k *datastore.Key) {
 	t.Key = k
 	t.ID = k.Encode()
+}
+
+func (t *Team) Write(c appengine.Context) {
+	_, err := datastore.Put(c, t.Key, t)
+	if err != nil {
+		c.Errorf("Write: %v", err)
+	}
+}
+
+func (t *Team) Throttle(c appengine.Context) bool {
+	now := time.Now()
+	if len(t.Attempts) < 2 {
+		t.Attempts = append(t.Attempts, now)
+		return false
+	}
+	if now.Sub(t.Attempts[0]).Minutes() > 1.0 {
+		t.Attempts[0], t.Attempts[1] = t.Attempts[1], now
+		t.Write(c)
+		return false
+	}
+	return true
 }
 
 func ID(c appengine.Context, id string) *Team {

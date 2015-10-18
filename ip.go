@@ -8,6 +8,7 @@ import (
 	"appengine"
 
 	"api"
+	"broadcast"
 	"hunt"
 )
 
@@ -23,6 +24,12 @@ func init() {
 	http.HandleFunc("/admin", adminHandler)
 	http.HandleFunc("/admin/", adminHuntHandler)
 	http.HandleFunc("/admin/api/", api.AdminHandler)
+	http.HandleFunc("/_ah/channel/disconnected/", channelDisconnectHandler)
+}
+
+func channelDisconnectHandler(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	broadcast.RemoveListener(c, r.FormValue("from"))
 }
 
 func pathHandler(w http.ResponseWriter, r *http.Request, t *template.Template) {

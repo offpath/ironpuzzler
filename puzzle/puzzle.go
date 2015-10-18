@@ -6,10 +6,14 @@ import (
 
 	"appengine"
 	"appengine/datastore"
+
+	"time"
 )
 
 const (
 	puzzleKind = "Puzzle"
+	maxPointValue = 15
+	minPointValue = 10
 )
 
 type Puzzle struct {
@@ -18,14 +22,29 @@ type Puzzle struct {
 	Answer string
 	Paper bool
 	Team *datastore.Key `json:"-"`
+	PointValue int
 	
 	ID string `datastore:"-"`
 	Key *datastore.Key `datastore:"-" json:"-"`
 }
 
+type Solve struct {
+	Team *datastore.Key
+	Puzzle *datastore.Key
+	Time time.Time
+}
+
 type AdminPuzzle struct {
 	Puzzle
 	TeamName string
+}
+
+type UpdatableProgressInfo struct {
+	AvailablePoints int
+	Solved bool
+	GrantedPoints int
+	SolveTimes []string
+	Answerable bool
 }
 
 func (p *Puzzle) enkey(k *datastore.Key) {
@@ -37,6 +56,16 @@ func (p *Puzzle) Write(c appengine.Context) {
 	_, err := datastore.Put(c, p.Key, p)
 	if err != nil {
 		c.Errorf("Write: %v", err)
+	}
+}
+
+func (p *Puzzle) UpdatableProgressInfo(c appengine.Context, h *hunt.Hunt, t *team.Team) UpdatableProgressInfo {
+	return UpdatableProgressInfo{
+		AvailablePoints: p.PointValue,
+		Solved: false,
+		GrantedPoints: 0,
+		SolveTimes: nil,
+		Answerable: t != nil && !t.Key.Equal(p.Team),
 	}
 }
 
@@ -87,6 +116,7 @@ func New(c appengine.Context, h *hunt.Hunt, t *team.Team, number int, paper bool
 		Number: number,
 		Paper: paper,
 		Team: t.Key,
+		PointValue: maxPointValue,
 	}
 	
 	k := datastore.NewIncompleteKey(c, puzzleKind, h.Key)
@@ -98,4 +128,3 @@ func New(c appengine.Context, h *hunt.Hunt, t *team.Team, number int, paper bool
 	newPuzzle.enkey(k)
 	return newPuzzle
 }
-
