@@ -124,9 +124,11 @@ func (p *Puzzle) SubmitAnswer(c appengine.Context, h *hunt.Hunt, t *team.Team, a
 	if normalize(p.Answer) != normalize(answer) {
 		return false
 	}
-	// query for Solves mathing h, p, t
-	// if none, add new solve + decrement point value
-	// write puzzle
+
+	if t.Key.Equal(p.Team) {
+		// The answer is correct, but it's for the team's own puzzle!
+		return true
+	}
 
 	keys, err := datastore.NewQuery(solveKind).Ancestor(h.Key).Filter("Puzzle =", p.Key).Filter("Team =", t.Key).Limit(1).KeysOnly().GetAll(c, nil)
 	if err != nil {
