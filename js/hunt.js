@@ -9,7 +9,6 @@ app.controller('huntCtrl', ['$scope', '$cookies', '$http', function ($scope, $co
 			window.alert("Bad password");
 			$scope.logout();
 		    }
-		    console.log(response);
 		    if ($scope.info.Leaderboard.Token != "") {
 			$scope.channel = new goog.appengine.Channel($scope.info.Leaderboard.Token);
 			$scope.socket = $scope.channel.open();
@@ -38,8 +37,6 @@ app.controller('huntCtrl', ['$scope', '$cookies', '$http', function ($scope, $co
 	}
 
 	$scope.submitAnswer = function(pid, answer) {
-	    console.log(pid);
-	    console.log(answer);
 	    $http.get("/api/submitanswer?hunt_id=" + huntId +
 		      "&puzzleid=" + pid +
 		      "&answer=" + encodeURIComponent(answer)). success(function (response) {

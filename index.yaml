@@ -21,6 +21,12 @@ indexes:
   - name: Team
   - name: Number
 
+- kind: Solve
+  ancestor: yes
+  properties:
+  - name: Puzzle
+  - name: Time
+
 - kind: Team
   ancestor: yes
   properties:

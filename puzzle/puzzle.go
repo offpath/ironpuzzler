@@ -67,13 +67,36 @@ func (p *Puzzle) Write(c appengine.Context) {
 }
 
 func (p *Puzzle) UpdatableProgressInfo(c appengine.Context, h *hunt.Hunt, t *team.Team) UpdatableProgressInfo {
-	return UpdatableProgressInfo{
+	u := UpdatableProgressInfo{
 		AvailablePoints: p.PointValue,
 		Solved: false,
 		GrantedPoints: 0,
 		SolveTimes: nil,
 		Answerable: t != nil && !t.Key.Equal(p.Team),
 	}
+	var solves []Solve
+	_, err := datastore.NewQuery(solveKind).Ancestor(h.Key).Filter("Puzzle =", p.Key).Filter("Team =", t.Key).Limit(1).GetAll(c, &solves)
+	if err != nil {
+		c.Errorf("Error: %v", err)
+	}
+	if len(solves) > 0 {
+		u.Solved = true
+		u.GrantedPoints = solves[0].Points
+		u.Answerable = false
+	}
+	solves = nil
+	_, err = datastore.NewQuery(solveKind).Ancestor(h.Key).Filter("Puzzle =", p.Key).Order("Time").GetAll(c, &solves)
+	if err != nil {
+		c.Errorf("Error: %v", err)
+	}
+	loc, err := time.LoadLocation("America/Los_Angeles")
+	if err != nil {
+		c.Errorf("Error: %v", err)
+	}
+	for _, s := range solves {
+		u.SolveTimes = append(u.SolveTimes, s.Time.In(loc).Format("15:04:05"))
+	}
+	return u
 }
 
 func (p *Puzzle) Admin(c appengine.Context) *AdminPuzzle {
@@ -105,7 +128,7 @@ func (p *Puzzle) SubmitAnswer(c appengine.Context, h *hunt.Hunt, t *team.Team, a
 	// if none, add new solve + decrement point value
 	// write puzzle
 
-	keys, err := datastore.NewQuery(solveKind).Ancestor(h.Key).Filter("Puzzle =", p.Key).Filter("Team =", t.Key).KeysOnly().GetAll(c, nil)
+	keys, err := datastore.NewQuery(solveKind).Ancestor(h.Key).Filter("Puzzle =", p.Key).Filter("Team =", t.Key).Limit(1).KeysOnly().GetAll(c, nil)
 	if err != nil {
 		return false
 	}
