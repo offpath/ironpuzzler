@@ -1,11 +1,51 @@
 var app = angular.module('adminHuntApp', []);
 
-app.controller('puzzlesCtrl', function ($scope, $http) {
+app.factory('api', function($http) {
+	var result = {};
+	var apiPath = "/admin/api";
+	
+	result.getURL = function (path) {
+	    return apiPath + "/" + path + "?hunt_id=" + huntId;
+	}
+
+	result.getPuzzles = function() {
+	    return $http.get(result.getURL("puzzles"));
+	}
+
+	result.getIngredients = function() {
+	    return $http.get(result.getURL("ingredients"));
+	}
+
+	result.setIngredients = function(newIngredients) {
+	    return $http.get(result.getURL("updateingredients") +
+			     "&ingredients=" + encodeURIComponent(newIngredients));
+	}
+
+	result.getTeams = function() {
+	    return $http.get(result.getURL("teams"));
+	}
+
+	result.addTeam = function(name, password, novice) {
+	    return $http.get(result.getURL("addteam") + 
+			     "&name=" + encodeURIComponent(name) +
+			     "&password=" + encodeURIComponent(password) +
+			     "&novice=" + novice);
+	}
+
+	result.deleteTeam = function(id) {
+	    return $http.get(result.getURL("deleteteam") +
+			     "&team_id=" + id);
+	}
+	
+	return result;
+    });
+
+app.controller('puzzlesCtrl', function ($scope, $http, api) {
 	$scope.refresh = function() {
-	    $http.get("/admin/api/puzzles?hunt_id=" + huntId).success(function (response) {
-		    $scope.puzzles = response;
-		    $scope.hasPuzzles = (response.length > 0);
+	    api.getPuzzles().success(function (response) {
 		    console.log(response);
+		    $scope.puzzles = response;
+		    $scope.hasPuzzles = (response != null && response.length > 0);
 		});
 	}
 
@@ -13,26 +53,26 @@ app.controller('puzzlesCtrl', function ($scope, $http) {
 	$scope.refresh();
     });
 
-app.controller('ingredientsCtrl', function ($scope, $http) {
+app.controller('ingredientsCtrl', function ($scope, $http, api) {
 	$scope.refresh = function() {
-	    $http.get("/admin/api/ingredients?hunt_id=" + huntId).success(function (response) {
+	    api.getIngredients().success(function (response) {
 		    $scope.ingredients = response;
 		});
 	}
 
 	$scope.updateIngredients = function() {
-	    $http.get("/admin/api/updateingredients?hunt_id=" + huntId +
-		      "&ingredients=" + encodeURIComponent($scope.newIngredients));
-	    $scope.newIngredients = "";
-	    // TODO(dneal): go through the channel
-	    setTimeout(function () {$scope.refresh();}, 1000);
+	    api.setIngredients($scope.newIngredients).success(function () {
+		    $scope.newIngredients = "";
+		    // TODO(dneal): Go through channel?
+		    $scope.refresh();
+		});
 	}
 
 	$scope.newIngredents = "";
 	$scope.refresh();
     });
 
-app.controller('teamsCtrl', function ($scope, $http) {
+app.controller('teamsCtrl', function ($scope, $http, api) {
 	$scope.refresh = function() {
 	    $http.get("/admin/api/teams?hunt_id=" + huntId).success(function (response) {
 		    $scope.teams = response;
@@ -40,22 +80,21 @@ app.controller('teamsCtrl', function ($scope, $http) {
 	}
 
 	$scope.addTeam = function() {
-	    $http.get("/admin/api/addteam?hunt_id=" + huntId +
-		      "&name=" + encodeURIComponent($scope.newTeamName) +
-		      "&password=" + encodeURIComponent($scope.newTeamPassword) +
-		      "&novice=" + $scope.newTeamNovice).success(function (response) {
-			      $scope.newTeamName = "";
-			      $scope.newTeamPassword = "";
-			      $scope.newteamNovice = false;
-			      $scope.refresh();
-			  });
+	    api.addTeam($scope.newTeamName, $scope.newTeamPassword,
+			$scope.newTeamNovice).success(function () {
+				$scope.newTeamName = "";
+				$scope.newTeamPassword = "";
+				$scope.newTeamNovice = false;
+				// TODO(dneal): Rely on channel?
+				$scope.refresh();
+			    });
 	}
 
 	$scope.deleteTeam = function(id) {
-	    $http.get("/admin/api/deleteteam?hunt_id=" + huntId +
-		      "&team_id=" + id).success(function (response) {
-			      $scope.refresh();
-			  });
+	    api.deleteTeam(id).success(function () {
+		    // TODO(dneal): Rely on channel?
+		    $scope.refresh();
+		});
 	}
 
 	$scope.newTeamName = "";
