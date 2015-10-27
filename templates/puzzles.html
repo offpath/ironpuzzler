@@ -1,0 +1,19 @@
+<span ng-controller="puzzlesCtrl" ng-show="hasPuzzles">
+  <h3>Puzzles</h3>
+  <table>
+    <tr>
+      <td>Number</td>
+      <td>Paper</td>
+      <td>Team</td>
+      <td>Name</td>
+      <td>Answer</td>
+    </tr>
+    <tr ng-repeat="p in puzzles">
+      <td>{{p.Number}}</td>
+      <td>{{p.Paper}}</td>
+      <td>{{p.TeamName}}</td>
+      <td>{{p.Name}}</td>
+      <td>{{p.Answer}}</td>
+    </tr>
+  </table>
+</span>

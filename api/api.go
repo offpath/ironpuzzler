@@ -43,7 +43,7 @@ type IngredientInfo struct {
 	Ingredients string
 }
 	
-type PuzzleInfo struct {
+type PuzzlesInfo struct {
 	Display bool
 	Puzzles []*puzzle.Puzzle
 }
@@ -66,7 +66,7 @@ type PageInfo struct {
 	Name string
 	Teams TeamSelector
 	Ingredients IngredientInfo
-	Puzzles PuzzleInfo
+	Puzzles PuzzlesInfo
 	Leaderboard LeaderboardInfo
 }
 

@@ -1,10 +1,22 @@
 var app = angular.module('adminHuntApp', []);
 
+app.controller('puzzlesCtrl', function ($scope, $http) {
+	$scope.refresh = function() {
+	    $http.get("/admin/api/puzzles?hunt_id=" + huntId).success(function (response) {
+		    $scope.puzzles = response;
+		    $scope.hasPuzzles = (response.length > 0);
+		    console.log(response);
+		});
+	}
+
+	$scope.hasPuzzles = false;
+	$scope.refresh();
+    });
+
 app.controller('ingredientsCtrl', function ($scope, $http) {
 	$scope.refresh = function() {
 	    $http.get("/admin/api/ingredients?hunt_id=" + huntId).success(function (response) {
 		    $scope.ingredients = response;
-		    console.log(response);
 		});
 	}
 
@@ -56,20 +68,10 @@ app.controller('adminHuntCtrl', function ($scope, $http) {
 	$scope.refreshHunt = function() {
 	    $http.get("/admin/api/hunt?hunt_id=" + huntId).success(function (response) {
 		    $scope.hunt = response;
-		    $scope.editable = ($scope.hunt.State == 0);
 		    $scope.advanceable = ($scope.hunt.State != 5 && $scope.hunt.State != 7);
-		    $scope.hasPuzzles = ($scope.hunt.State != 0);
-		    if ($scope.hasPuzzles) {
-			$scope.refreshPuzzles();
-		    }
 		});
 	}
 
-	$scope.refreshPuzzles = function() {
-	    $http.get("/admin/api/puzzles?hunt_id=" + huntId).success(function (response) {
-		    $scope.puzzles = response;
-		});
-	}
 	
 	$scope.advanceState = function() {
 	    r = window.confirm("Are you sure you wish to advance the state? This cannot be undone.");
@@ -92,8 +94,6 @@ app.controller('adminHuntCtrl', function ($scope, $http) {
 	    7: "Results released",
 	}
 
-	$scope.editable = false;
 	$scope.advanceable = false;
-	$scope.hasPuzzles = false;
 	$scope.refreshHunt();
     });
