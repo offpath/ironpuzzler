@@ -89,12 +89,8 @@ func (p *Puzzle) UpdatableProgressInfo(c appengine.Context, h *hunt.Hunt, t *tea
 	if err != nil {
 		c.Errorf("Error: %v", err)
 	}
-	loc, err := time.LoadLocation("America/Los_Angeles")
-	if err != nil {
-		c.Errorf("Error: %v", err)
-	}
 	for _, s := range solves {
-		u.SolveTimes = append(u.SolveTimes, s.Time.In(loc).Format("15:04:05"))
+		u.SolveTimes = append(u.SolveTimes, s.Time.In(h.GetTimezone(c)).Format("15:04:05"))
 	}
 	return u
 }

@@ -2,6 +2,7 @@ package hunt
 
 import (
 	"regexp"
+	"time"
 
 	"appengine"
 	"appengine/datastore"
@@ -29,7 +30,9 @@ type Hunt struct {
 	Path string
 	Ingredients string
 	State int
+	Timezone string
 
+	tz *time.Location `datastore:"-" json:"-"`
 	ID string `datastore:"-"`
 	Key *datastore.Key `datastore:"-" json:"-"`
 }
@@ -94,6 +97,17 @@ func All(c appengine.Context) []*Hunt {
 	return hunts
 }
 
+func (hunt *Hunt) GetTimezone(c appengine.Context) *time.Location {
+	if hunt.tz == nil {
+		var err error
+		hunt.tz, err = time.LoadLocation(hunt.Timezone)
+		if err != nil {
+			c.Errorf("GetTimezone: %v", err)
+		}
+	}
+	return hunt.tz
+}
+
 func New(c appengine.Context, name string, path string) *Hunt {
 	if !pathRegexp.MatchString(path) {
 		return nil
@@ -102,6 +116,7 @@ func New(c appengine.Context, name string, path string) *Hunt {
 		Name: name,
 		Path: path,
 		State: StatePreLaunch,
+		Timezone: "America/Los_Angeles",
 	}
 
 	// TODO(dneal): Ensure no collisions on path.
