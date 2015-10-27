@@ -21,6 +21,11 @@ const (
 	leaderboardListenerKind = "LeaderboardListener"
 )
 
+type TeamsInfo struct {
+	Editable bool
+	Teams []*team.Team
+}
+
 type TeamInfo struct {
 	Name string
 	ID string
@@ -247,8 +252,10 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	case "teams":
 		if h != nil {
-			teams := team.All(c, h)
-			err = enc.Encode(teams)
+			err = enc.Encode(TeamsInfo{
+				Editable: true,
+				Teams: team.All(c, h),
+			})
 		}
 	case "addteam":
 		if h != nil {
