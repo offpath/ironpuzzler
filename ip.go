@@ -16,6 +16,7 @@ var (
 	adminTemplate = template.Must(template.New("admin.html").Delims("{(", ")}").ParseFiles("templates/admin.html"))
 	adminHuntTemplate = template.Must(template.New("admin_hunt.html").Delims("{(", ")}").ParseFiles("templates/admin_hunt.html"))
 	huntTemplate = template.Must(template.New("hunt.html").Delims("{(", ")}").ParseFiles("templates/hunt.html"))
+	ingredientsTemplate = template.Must(template.New("ingredients.html").Delims("{(", ")}").ParseFiles("templates/ingredients.html"))
 )
 
 func init() {
@@ -24,6 +25,7 @@ func init() {
 	http.HandleFunc("/admin", adminHandler)
 	http.HandleFunc("/admin/", adminHuntHandler)
 	http.HandleFunc("/admin/api/", api.AdminHandler)
+	http.HandleFunc("/includes/ingredients.html", ingredientsHandler)
 	http.HandleFunc("/_ah/channel/disconnected/", channelDisconnectHandler)
 }
 
@@ -57,6 +59,14 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 	err := adminTemplate.Execute(w, nil)
 	if err != nil {
 		c.Errorf("adminTemplate: %v", err)
+	}
+}
+
+func ingredientsHandler(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	err := ingredientsTemplate.Execute(w, nil)
+	if err != nil {
+		c.Errorf("ingredientsTemplate: %v", err)
 	}
 }
 

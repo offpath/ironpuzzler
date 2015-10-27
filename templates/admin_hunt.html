@@ -69,11 +69,7 @@
     </p>
 
     <p>
-      <h3>Ingredients</h3>
-      <form novalidate>
-	Ingredients: <input type="text" ng-disabled="!editable" ng-model="hunt.Ingredients"><br>
-	<button ng-click="updateIngredients(hunt.Ingredients)" ng-show="editable">Update ingredients</button>
-      </form>
+      <span ng-include="'/includes/ingredients.html'">
     </p>
 
     <script>huntId={(.)}</script>

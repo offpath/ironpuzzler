@@ -1,5 +1,25 @@
 var app = angular.module('adminHuntApp', []);
 
+app.controller('ingredientsCtrl', function ($scope, $http) {
+	$scope.refresh = function() {
+	    $http.get("/admin/api/ingredients?hunt_id=" + huntId).success(function (response) {
+		    $scope.ingredients = response;
+		    console.log(response);
+		});
+	}
+
+	$scope.updateIngredients = function() {
+	    $http.get("/admin/api/updateingredients?hunt_id=" + huntId +
+		      "&ingredients=" + encodeURIComponent($scope.newIngredients));
+	    $scope.newIngredients = "";
+	    // TODO(dneal): go through the channel
+	    setTimeout(function () {$scope.refresh();}, 1000);
+	}
+
+	$scope.newIngredents = "";
+	$scope.refresh();
+    });
+
 app.controller('adminHuntCtrl', function ($scope, $http) {
 	$scope.refreshHunt = function() {
 	    $http.get("/admin/api/hunt?hunt_id=" + huntId).success(function (response) {

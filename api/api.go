@@ -34,6 +34,7 @@ type TeamSelector struct {
 
 type IngredientInfo struct {
 	Display bool
+	Editable bool
 	Ingredients string
 }
 	
@@ -273,6 +274,12 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			err = enc.Encode(admin)
 		}
+	case "ingredients":
+		err = enc.Encode(IngredientInfo{
+			Display: true,
+			Editable: true,
+			Ingredients: h.Ingredients,
+		})
 	}
 	
 	if err != nil {
