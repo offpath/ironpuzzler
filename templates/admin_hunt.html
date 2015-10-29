@@ -1,4 +1,4 @@
-<html ng-app="adminHuntApp" ng-controller="adminHuntCtrl">
+<html ng-app="huntApp" ng-controller="adminHuntCtrl">
   <head>
     <title>Admin Console</title>
   </head>
@@ -17,6 +17,10 @@
     </p>
 
     <p>
+      <span ng-include="'/includes/leaderboard.html'"></span>
+    </p>
+
+    <p>
       <span ng-include="'/includes/puzzles.html'"></span>
     </p>
 
@@ -29,6 +33,7 @@
     </p>
 
     <script>huntId={(.)}</script>
+    <script>isAdmin=true</script>
     <script src="/admin/js/admin_hunt.js"></script>
   </body>
 </html>

@@ -1,11 +1,14 @@
-var app = angular.module('adminHuntApp', []);
+var app = angular.module('huntApp', []);
 
 app.factory('api', function($http) {
 	var result = {};
-	var apiPath = "/admin/api";
 	
 	result.getURL = function (path) {
-	    return apiPath + "/" + path + "?hunt_id=" + huntId;
+	    var result = "/api/" + path + "?hunt_id=" + huntId;
+	    if (isAdmin) {
+		result = "/admin" + result;
+	    }
+	    return result
 	}
 
 	result.getPuzzles = function() {
@@ -36,14 +39,51 @@ app.factory('api', function($http) {
 	    return $http.get(result.getURL("deleteteam") +
 			     "&team_id=" + id);
 	}
-	
+
+	result.getLeaderboard = function() {
+	    return $http.get(result.getURL("leaderboard"));
+	}
+
+	result.getLeaderboardUpdate = function(id) {
+	    return $http.get(result.getURL("leaderboardupdate") +
+			     "&puzzleid=" + id);
+	}
+
 	return result;
     });
 
-app.controller('puzzlesCtrl', function ($scope, $http, api) {
+app.controller('leaderboardCtrl', function ($scope, api) {
+	$scope.refresh = function() {
+	    api.getLeaderboard().success(function (response) {
+		    $scope.Leaderboard = response;
+		});
+	}
+
+	$scope.updatePuzzles = function(id) {
+	    api.getLeaderboardupdate(id).success(function (response) {
+		    for (var i = 0; i < $scope.Leaderboard.Progress.length; i++) {
+			if (id == $scope.Leaderboard.Progress[i].ID) {
+			    $scope.Leaderboard.Progress[i].Updatable = response;
+			}
+		    }
+		});
+	}
+
+	$scope.submitAnswer = function(pid, answer) {
+	    // TODO(dneal)
+	}
+
+	$scope.puzzleFormat = {
+	    false: "Non-paper",
+	    true: "Paper",
+	}
+
+	$scope.refresh();
+    });
+
+app.controller('puzzlesCtrl', function ($scope, api) {
 	$scope.refresh = function() {
 	    api.getPuzzles().success(function (response) {
-		    console.log(response);
 		    $scope.puzzles = response;
 		    $scope.hasPuzzles = (response != null && response.length > 0);
 		});
@@ -53,7 +93,7 @@ app.controller('puzzlesCtrl', function ($scope, $http, api) {
 	$scope.refresh();
     });
 
-app.controller('ingredientsCtrl', function ($scope, $http, api) {
+app.controller('ingredientsCtrl', function ($scope, api) {
 	$scope.refresh = function() {
 	    api.getIngredients().success(function (response) {
 		    $scope.ingredients = response;
@@ -72,9 +112,9 @@ app.controller('ingredientsCtrl', function ($scope, $http, api) {
 	$scope.refresh();
     });
 
-app.controller('teamsCtrl', function ($scope, $http, api) {
+app.controller('teamsCtrl', function ($scope, api) {
 	$scope.refresh = function() {
-	    $http.get("/admin/api/teams?hunt_id=" + huntId).success(function (response) {
+	    api.getTeams().success(function (response) {
 		    $scope.teams = response;
 		});
 	}

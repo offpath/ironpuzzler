@@ -1,0 +1,25 @@
+<span ng-controller="leaderboardCtrl" ng-show="Leaderboard.Display">
+  <h3>Progress</h3>
+  <table>
+    <tr>
+      <td ng-show="Leaderboard.Answerable">Answer</td>
+      <td>Number</td>
+      <td>Name</td>
+      <td>Available Points</td>
+      <td>Solve times</td>
+    </tr>
+    <tr ng-repeat="p in Leaderboard.Progress">
+      <td ng-show="Leaderboard.Answerable">
+	<form novalidate ng-show="p.Updatable.Answerable">
+	  <input type="text" ng-model="p.Answer">
+	  <button ng-click="submitAnswer(p.ID, p.Answer)">Submit</button>
+	</form>
+	<span ng-show="p.Updatable.Solved">Solved for {{p.Updatable.GrantedPoints}} points</span>
+      </td>
+      <td>{{p.Number}}</td>
+      <td>{{p.Name}}</td>
+      <td>{{p.Updatable.AvailablePoints}}</td>
+      <td><span ng-repeat="s in p.Updatable.SolveTimes">{{s}}, </span></td>
+    </tr>
+  </table>
+</span>

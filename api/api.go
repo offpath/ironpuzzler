@@ -205,6 +205,7 @@ func fillLeaderboardInfo(c appengine.Context, h *hunt.Hunt, t *team.Team, l *Lea
 			Number: p.Number,
 			Name: p.Name,
 			ID: p.ID,
+			Updatable: p.UpdatableProgressInfo(c, h, t),
 		})
 	}
 	l.Token = broadcast.AddListener(c, h, t)
@@ -231,6 +232,11 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	var t *team.Team
 	if id := r.FormValue("team_id"); h != nil && id != "" {
 		t = team.ID(c, id)
+	}
+
+	var p *puzzle.Puzzle
+	if id := r.FormValue("puzzleid"); h != nil && id != "" {
+		p = puzzle.ID(c, id)
 	}
 
 	var err error
@@ -287,6 +293,14 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 			Editable: true,
 			Ingredients: h.Ingredients,
 		})
+	case "leaderboard":
+		var l LeaderboardInfo
+		fillLeaderboardInfo(c, h, nil, &l)
+		err = enc.Encode(l)
+	case "leaderboardupdate":
+		if p != nil {
+			err = enc.Encode(p.UpdatableProgressInfo(c, h, t))
+		}
 	}
 	
 	if err != nil {

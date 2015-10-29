@@ -74,18 +74,20 @@ func (p *Puzzle) UpdatableProgressInfo(c appengine.Context, h *hunt.Hunt, t *tea
 		SolveTimes: nil,
 		Answerable: t != nil && !t.Key.Equal(p.Team),
 	}
-	var solves []Solve
-	_, err := datastore.NewQuery(solveKind).Ancestor(h.Key).Filter("Puzzle =", p.Key).Filter("Team =", t.Key).Limit(1).GetAll(c, &solves)
-	if err != nil {
-		c.Errorf("Error: %v", err)
-	}
-	if len(solves) > 0 {
-		u.Solved = true
+	if t != nil {
+		var solves []Solve
+		_, err := datastore.NewQuery(solveKind).Ancestor(h.Key).Filter("Puzzle =", p.Key).Filter("Team =", t.Key).Limit(1).GetAll(c, &solves)
+		if err != nil {
+			c.Errorf("Error: %v", err)
+		}
+		if len(solves) > 0 {
+			u.Solved = true
 		u.GrantedPoints = solves[0].Points
-		u.Answerable = false
+			u.Answerable = false
+		}
 	}
-	solves = nil
-	_, err = datastore.NewQuery(solveKind).Ancestor(h.Key).Filter("Puzzle =", p.Key).Order("Time").GetAll(c, &solves)
+	var solves []Solve
+	_, err := datastore.NewQuery(solveKind).Ancestor(h.Key).Filter("Puzzle =", p.Key).Order("Time").GetAll(c, &solves)
 	if err != nil {
 		c.Errorf("Error: %v", err)
 	}
