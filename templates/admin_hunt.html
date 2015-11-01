@@ -5,36 +5,39 @@
   <body>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
 
-    <h1>{{hunt.Name}}</h1>
-
-    <p>
-      <h3>State</h3>
-      Current state: <b>{{stateTable[hunt.State]}}</b><br>
-      <span ng-show="advanceable">
-	Next state: <b>{{stateTable[hunt.State + 1]}}</b><br>
-	<button ng-click="advanceState()">Advance state</button>
-      </span>
-    </p>
-
-    <p>
-      <span ng-include="'/includes/leaderboard.html'"></span>
-    </p>
-
-    <p>
-      <span ng-include="'/includes/puzzles.html'"></span>
-    </p>
-
-    <p>
-      <span ng-include="'/includes/teams.html'"></span>
-    </p>
-
-    <p>
-      <span ng-include="'/includes/ingredients.html'"></span>
-    </p>
-
-    <p>
-      <span ng-include="'/includes/console.html'"></span>
-    </p>
+    <div style="height:65vh;overflow:auto;border-style:solid">
+      <h1>{{hunt.Name}}</h1>
+      
+      <p>
+	<h3>State</h3>
+	Current state: <b>{{stateTable[hunt.State]}}</b><br>
+	<span ng-show="advanceable">
+	  Next state: <b>{{stateTable[hunt.State + 1]}}</b><br>
+	  <button ng-click="advanceState()">Advance state</button>
+	</span>
+      </p>
+      
+      <p>
+	<span ng-include="'/includes/leaderboard.html'"></span>
+      </p>
+      
+      <p>
+	<span ng-include="'/includes/puzzles.html'"></span>
+      </p>
+      
+      <p>
+	<span ng-include="'/includes/teams.html'"></span>
+      </p>
+      
+      <p>
+	<span ng-include="'/includes/ingredients.html'"></span>
+      </p>
+    </div>
+    <div style="height:25vh;overflow:auto;border-style:solid">
+      <p>
+	<span ng-include="'/includes/console.html'"></span>
+      </p>
+    </div>
 
     <script type="text/javascript" src="/_ah/channel/jsapi"></script>
     <script>huntId={(.)}</script>
