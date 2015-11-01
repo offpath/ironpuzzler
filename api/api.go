@@ -3,6 +3,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -11,6 +12,7 @@ import (
 	"appengine"
 	"appengine/datastore"
 
+	"adminconsole"
 	"broadcast"
 	"hunt"
 	"puzzle"
@@ -141,11 +143,14 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 			outcome = "Error, try again!"
 		} else if throttled {
 			outcome = "Throttled"
+			adminconsole.Log(c, h, fmt.Sprintf("%s attempts to answer but is throttled", t.Name))
 		} else if correct {
 			outcome = "Correct!"
-			broadcast.SendUpdatePuzzle(c, h, p)
+			broadcast.SendLeaderboardUpdate(c, h, p)
+			adminconsole.Log(c, h, fmt.Sprintf("%s correctly answers (%d) %s", t.Name, p.Number, p.Name))
 		} else {
 			outcome = "Incorrect"
+			adminconsole.Log(c, h, fmt.Sprintf("%s incorrectly answers [%s] for (%d) %s", t.Name, r.FormValue("answer"), p.Number, p.Name))
 		}
 		err = enc.Encode(outcome)
 	}
@@ -304,6 +309,10 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	case "channel":
 		if h != nil {
 			err = enc.Encode(broadcast.GetToken(c, h, nil, true))
+		}
+	case "console":
+		if h != nil {
+			err = enc.Encode(adminconsole.Logs(c, h))
 		}
 	}
 	

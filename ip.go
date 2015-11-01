@@ -20,6 +20,7 @@ var (
 	teamsTemplate = template.Must(template.New("teams.html").Delims("{(", ")}").ParseFiles("templates/teams.html"))
 	puzzlesTemplate = template.Must(template.New("puzzles.html").Delims("{(", ")}").ParseFiles("templates/puzzles.html"))
 	leaderboardTemplate = template.Must(template.New("leaderboard.html").Delims("{(", ")}").ParseFiles("templates/leaderboard.html"))
+	consoleTemplate = template.Must(template.New("console.html").Delims("{(", ")}").ParseFiles("templates/console.html"))
 )
 
 func init() {
@@ -34,6 +35,7 @@ func init() {
 	http.HandleFunc("/includes/leaderboard.html", leaderboardHandler)
 	http.HandleFunc("/_ah/channel/connected/", channelConnectHandler)
 	http.HandleFunc("/_ah/channel/disconnected/", channelDisconnectHandler)
+	http.HandleFunc("/includes/console.html", consoleHandler)
 }
 
 func channelConnectHandler(w http.ResponseWriter, r *http.Request) {
@@ -104,6 +106,14 @@ func leaderboardHandler(w http.ResponseWriter, r *http.Request) {
 	err := leaderboardTemplate.Execute(w, nil)
 	if err != nil {
 		c.Errorf("leaderboardTemplate: %v", err)
+	}
+}
+
+func consoleHandler(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	err := consoleTemplate.Execute(w, nil)
+	if err != nil {
+		c.Errorf("consoleTemplate: %v", err)
 	}
 }
 

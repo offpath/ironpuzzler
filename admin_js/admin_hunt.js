@@ -52,13 +52,28 @@ app.factory('api', function($http) {
 			     "&puzzleid=" + id);
 	}
 
+	result.getConsole = function(id) {
+	    return $http.get(result.getURL("console"));
+	}
+
 	result.addListener = function(listener) {
 	    listeners.push(listener);
 	}
 
 	result.onMessage = function(message) {
-	    for (var i = 0; i < listeners.length; i++) {
-		listeners[i].onMessage(message);
+	    var j = JSON.parse(message.data);
+	    if (j.K == "refresh") {
+		for (var i = 0; i < listeners.length; i++) {
+		    if (listeners[i].hasOwnProperty("refresh")) {
+			listeners[i].refresh();
+		    }
+		}
+	    } else {
+		for (var i = 0; i < listeners.length; i++) {
+		    if (listeners[i].hasOwnProperty("onMessage")) {
+			listeners[i].onMessage(j);
+		    }
+		}
 	    }
 	}
 
@@ -72,6 +87,22 @@ app.factory('api', function($http) {
 
 	result.openChannel();
 	return result;
+    });
+
+app.controller('consoleCtrl', function($scope, api) {
+	$scope.onMessage = function(message) {
+	    if (message.K == "consoleupdate") {
+		$scope.$apply(function() {
+			$scope.Lines.unshift(message.V);
+		    });
+	    }
+	}
+
+	$scope.Lines = [];
+	api.getConsole().success(function (response) {
+		$scope.Lines = response;
+	    });
+	api.addListener($scope);
     });
 
 app.controller('leaderboardCtrl', function ($scope, api) {
@@ -101,7 +132,9 @@ app.controller('leaderboardCtrl', function ($scope, api) {
 	}
 
 	$scope.onMessage = function(message) {
-	    $scope.updatePuzzle(message.data);
+	    if (message.K == "leaderboardupdate") {
+		$scope.updatePuzzle(message.V);
+	    }
 	}
 
 	api.addListener($scope);
