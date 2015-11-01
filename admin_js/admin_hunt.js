@@ -2,6 +2,9 @@ var app = angular.module('huntApp', []);
 
 app.factory('api', function($http) {
 	var result = {};
+	var listeners = [];
+	var channel;
+	var socket;
 	
 	result.getURL = function (path) {
 	    var result = "/api/" + path + "?hunt_id=" + huntId;
@@ -49,6 +52,25 @@ app.factory('api', function($http) {
 			     "&puzzleid=" + id);
 	}
 
+	result.addListener = function(listener) {
+	    listeners.push(listener);
+	}
+
+	result.onMessage = function(message) {
+	    for (var i = 0; i < listeners.length; i++) {
+		listeners[i].onMessage(message);
+	    }
+	}
+
+	result.openChannel = function() {
+	    $http.get(result.getURL("channel")).success(function (response) {
+		    channel = new goog.appengine.Channel(response)
+		    socket = channel.open();
+		    socket.onmessage = result.onMessage;
+		});
+	}
+
+	result.openChannel();
 	return result;
     });
 
@@ -59,8 +81,8 @@ app.controller('leaderboardCtrl', function ($scope, api) {
 		});
 	}
 
-	$scope.updatePuzzles = function(id) {
-	    api.getLeaderboardupdate(id).success(function (response) {
+	$scope.updatePuzzle = function(id) {
+	    api.getLeaderboardUpdate(id).success(function (response) {
 		    for (var i = 0; i < $scope.Leaderboard.Progress.length; i++) {
 			if (id == $scope.Leaderboard.Progress[i].ID) {
 			    $scope.Leaderboard.Progress[i].Updatable = response;
@@ -78,6 +100,11 @@ app.controller('leaderboardCtrl', function ($scope, api) {
 	    true: "Paper",
 	}
 
+	$scope.onMessage = function(message) {
+	    $scope.updatePuzzle(message.data);
+	}
+
+	api.addListener($scope);
 	$scope.refresh();
     });
 

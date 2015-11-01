@@ -208,7 +208,7 @@ func fillLeaderboardInfo(c appengine.Context, h *hunt.Hunt, t *team.Team, l *Lea
 			Updatable: p.UpdatableProgressInfo(c, h, t),
 		})
 	}
-	l.Token = broadcast.AddListener(c, h, t)
+	l.Token = broadcast.GetToken(c, h, t, false)
 	l.Display = true
 	l.Answerable = t != nil
 }
@@ -300,6 +300,10 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	case "leaderboardupdate":
 		if p != nil {
 			err = enc.Encode(p.UpdatableProgressInfo(c, h, t))
+		}
+	case "channel":
+		if h != nil {
+			err = enc.Encode(broadcast.GetToken(c, h, nil, true))
 		}
 	}
 	

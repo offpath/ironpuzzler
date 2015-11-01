@@ -32,7 +32,14 @@ func init() {
 	http.HandleFunc("/includes/teams.html", teamsHandler)
 	http.HandleFunc("/includes/puzzles.html", puzzlesHandler)
 	http.HandleFunc("/includes/leaderboard.html", leaderboardHandler)
+	http.HandleFunc("/_ah/channel/connected/", channelConnectHandler)
 	http.HandleFunc("/_ah/channel/disconnected/", channelDisconnectHandler)
+}
+
+func channelConnectHandler(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	c.Errorf("client_id = [%s]", r.FormValue("from"))
+	broadcast.AddListener(c, r.FormValue("from"))
 }
 
 func channelDisconnectHandler(w http.ResponseWriter, r *http.Request) {

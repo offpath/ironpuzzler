@@ -2,6 +2,7 @@ package broadcast
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"appengine"
@@ -16,29 +17,30 @@ import (
 type MessageType int
 
 const (
-	leaderboardListenerKind = "LeaderboardListener"
+	listenerKind = "Listener"
 	UpdatePuzzle MessageType = 0
 	RefreshPage
+	unauthListener = "unauth"
+	adminListener = "admin"
 )
 
-type LeaderboardListener struct {
+type Listener struct {
 	Channel string
+	TeamID string
+	Admin bool
 }
 
-func AddListener(c appengine.Context, h *hunt.Hunt, t *team.Team) string {
+func GetToken(c appengine.Context, h *hunt.Hunt, t *team.Team, admin bool) string {
+	// Channel name format: huntID.teamID/admin/unauth.timestamp
 	var channelName string
-	if t != nil {
-		channelName = fmt.Sprintf("%s.%d", t.Name, time.Now().UnixNano())
-	} else {
-		channelName = fmt.Sprintf("nil.%d", time.Now().UnixNano())
+	middle := unauthListener
+	if admin {
+		middle = adminListener
+	} else if t != nil {
+		middle = t.ID
 	}
+	channelName = fmt.Sprintf("%s.%s.%d", h.ID, middle, time.Now().UnixNano())
 	token, err := channel.Create(c, channelName)
-	if err != nil {
-		c.Errorf("Error: %v", err)
-		return ""
-	}
-	listener := LeaderboardListener{channelName}
-	_, err = datastore.Put(c, datastore.NewIncompleteKey(c, leaderboardListenerKind, h.Key), &listener)
 	if err != nil {
 		c.Errorf("Error: %v", err)
 		return ""
@@ -46,8 +48,41 @@ func AddListener(c appengine.Context, h *hunt.Hunt, t *team.Team) string {
 	return token
 }
 
+func AddListener(c appengine.Context, channelName string) {
+	split := strings.Split(channelName, ".")
+	if len(split) != 3 {
+		c.Errorf("Unexpected channel name: %s", channelName)
+		return
+	}
+	h := hunt.ID(c, split[0])
+	if h == nil {
+		c.Errorf("Channel without matching hunt: %s", channelName)
+		return
+	}
+	listener := Listener{
+		Channel: channelName,
+	}
+	if split[1] != unauthListener {
+		if split[1] == adminListener {
+			listener.Admin = true
+		} else {
+			t := team.ID(c, split[1])
+			if t == nil {
+				c.Errorf("Channel without matching team: %s", channelName)
+				return
+			}
+			listener.TeamID = t.ID
+		}
+	}
+	_, err := datastore.Put(c, datastore.NewIncompleteKey(c, listenerKind, h.Key), &listener)
+	if err != nil {
+		c.Errorf("Error: %v", err)
+		return
+	}
+}
+
 func RemoveListener(c appengine.Context, str string) {
-	keys, err := datastore.NewQuery(leaderboardListenerKind).Filter("Channel =", str).KeysOnly().GetAll(c, nil)
+	keys, err := datastore.NewQuery(listenerKind).Filter("Channel =", str).KeysOnly().GetAll(c, nil)
 	if err != nil {
 		c.Errorf("RemoveListener: %v", err)
 		return
@@ -68,8 +103,8 @@ func SendRefresh(c appengine.Context, h *hunt.Hunt) {
 }
 
 func send(c appengine.Context, h *hunt.Hunt, str string) {
-	var listeners []LeaderboardListener
-	_, err := datastore.NewQuery(leaderboardListenerKind).Ancestor(h.Key).GetAll(c, &listeners)
+	var listeners []Listener
+	_, err := datastore.NewQuery(listenerKind).Ancestor(h.Key).GetAll(c, &listeners)
 	if err != nil {
 		c.Errorf("Send: %v", err)
 		return
@@ -82,3 +117,6 @@ func send(c appengine.Context, h *hunt.Hunt, str string) {
 	}
 }
 
+func SendConsoleUpdate(c appengine.Context, h *hunt.Hunt, str string) {
+
+}
