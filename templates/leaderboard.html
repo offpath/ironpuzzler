@@ -3,27 +3,34 @@
     <h3>Puzzle Progress</h3>
   </md-toolbar>
   <md-content flex layout-padding>
-    <table>
-      <tr>
-	<td ng-show="Leaderboard.Answerable">Answer</td>
-	<td>Number</td>
-	<td>Name</td>
-	<td>Available Points</td>
-	<td>Solve times</td>
-      </tr>
-      <tr ng-repeat="p in Leaderboard.Progress">
-	<td ng-show="Leaderboard.Answerable">
-	  <form novalidate ng-show="p.Updatable.Answerable">
-	    <input type="text" ng-model="p.Answer">
-	    <button ng-click="submitAnswer(p.ID, p.Answer)">Submit</button>
+    <md-list>
+      <md-list-item layout="row" layout-padding>
+	<div flex="25">Puzzle</div>
+	<div flex="10">Available points</div>
+	<div flex="35">Solve times</div>
+	<div flex></div>
+	<md-divider></md-divider>
+      </md-list-item>
+      
+      <md-list-item layout="row" ng-repeat="p in Leaderboard.Progress" layout-padding>
+	<div flex="5">{{p.Number}}</div>
+	<div flex="20">{{p.Name}}</div>
+	<div flex="10">{{p.Updatable.AvailablePoints}}pts</div>
+	<div flex="35"><span ng-repeat="s in p.Updatable.SolveTimes">{{s}}, </span></div>
+	<div flex="20" ng-show="Leaderboard.Answerable">
+	  <form novalidate layout="row" layout-align="bottom" ng-show="p.Updatable.Answerable">
+	    <md-input-container md-no-float>
+	      <input ng-model="p.Answer" placeholder="Answer">
+	    </md-input-container>
+	    <md-button class="md-primary md-raised" ng-click="submitAnswer(p.ID, p.Answer)">
+	      Submit
+	    </md-button>
 	  </form>
 	  <span ng-show="p.Updatable.Solved">Solved for {{p.Updatable.GrantedPoints}} points</span>
-	</td>
-	<td>{{p.Number}}</td>
-	<td>{{p.Name}}</td>
-	<td>{{p.Updatable.AvailablePoints}}</td>
-	<td><span ng-repeat="s in p.Updatable.SolveTimes">{{s}}, </span></td>
-      </tr>
-    </table>
+	</div>
+	<div flex></div>
+	<md-divider ng-if="!$last"></md-divider>
+      </md-list-item>
+    </md-list>
   </md-content>
 </md-card>

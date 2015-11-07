@@ -3,13 +3,12 @@
     <h3>Ingredients</h3>
   </md-toolbar>
   <md-content flex layout-padding>
+    {{ingredients.Ingredients}}<br>
     <form ng-show="ingredients.Editable" novalidate>
-      {{ingredients.Ingredients}}<br>
-      <md-input-container>
-	<label>New ingredients</label>
-	<input type="text", ng-model="newIngredients"><br>
+      <md-input-container md-no-float>
+	<input ng-model="newIngredients" placeholder="New ingredients">
       </md-input-container>
-      <button ng-click="updateIngredients()">Update</button>
+      <md-button class="md-primary md-raised" ng-click="updateIngredients()">Update</md-button>
     </form>
   </md-content>
 </md-card>

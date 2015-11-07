@@ -3,21 +3,24 @@
     <h3>Puzzles</h3>
   </md-toolbar>
   <md-content flex layout-padding>
-    <table>
-      <tr>
-	<td>Number</td>
-	<td>Paper</td>
-	<td>Team</td>
-	<td>Name</td>
-	<td>Answer</td>
-      </tr>
-      <tr ng-repeat="p in puzzles">
-	<td>{{p.Number}}</td>
-	<td>{{p.Paper}}</td>
-	<td>{{p.TeamName}}</td>
-	<td>{{p.Name}}</td>
-	<td>{{p.Answer}}</td>
-      </tr>
-    </table>
+    <md-list>
+      <md-list-item layou="row" layout-padding>
+	<div flex="25">Puzzle</div>
+	<div flex="20">Answer</div>
+	<div flex="5">Paper</div>
+	<div flex="20">Team</div>
+	<div flex></div>
+	<md-divider></md-divider>
+      </md-list-item>
+      <md-list-item layout="row" ng-repeat="p in puzzles" layout-padding>
+	<div flex="5">{{p.Number}}</div>
+	<div flex="20">{{p.Name}}</div>
+	<div flex="20">{{p.Answer}}</div>
+	<div flex="5">{{p.Paper}}</div>
+	<div flex="20">{{p.TeamName}}</div>
+	<div flex></div>
+	<md-divider ng-if="!$last"></md-divider>
+      </md-list-item>
+    </md-list>
   </md-content>
 </md-card>

@@ -3,30 +3,32 @@
     <h3>Teams</h3>
   </md-toolbar>
   <md-content flex layout-padding>
-    <table>
-      <tr>
-	<td>Name</td>
-	<td>Password</td>
-	<td>Novice</td>
-	<td ng-show="teams.Editable">Delete</td>
-      </tr>
-      <tr ng-repeat="t in teams.Teams">
-	<td>{{t.Name}}</td>
-	<td>{{t.Password}}</td>
-	<td>{{t.Novice}}</td>
-	<td ng-show="teams.Editable"><button ng-click="deleteTeam(t.ID)">Delete</button></td>
-      </tr>
-    </table>
-    <span ng-show="teams.Editable">
-      <p>
-	<h3>Add new team:</h3>
-	<form novalidate>
-	  Name: <input type="text" ng-model="newTeamName"><br>
-	  Password: <input type="text" ng-model="newTeamPassword"><br>
-	  Novice: <input type="checkbox" ng-model="newTeamNovice"><br>
-	  <button ng-click="addTeam()">Add</button>
+    <md-list>
+      <md-list-item class="md-3-line" ng-repeat="t in teams.Teams">
+	<div class="md-list-item-text">
+	  <h3>{{t.Name}}</h3>
+	  <h4>{{t.Password}}</h4>
+	  <h4>Beginner: {{t.Novice}}</h4>
+	</div>
+	<md-button class="md-warn" ng-show="teams.Editable" ng-click="deleteTeam(t.ID)">Delete</md-button>
+	<md-divider></md-divider>
+      </md-list-item>
+      <md-list-item ng-show="teams.Editable">
+	<form novalidate layout="row">
+	  <md-input-container md-no-float>
+	    <input ng-model="newTeamName" placeholder="Name">
+	  </md-input-container>
+	  <md-input-container md-no-float>
+	    <input ng-model="newTeamPassword" placeholder="Password">
+	  </md-input-container>
+	  <div flex>
+	    <md-checkbox ng-model="newTeamNovice" class="md-align-center">
+	      Novice
+	    </md-checkbox>
+	  </div>
+	  <md-button class="md-primary md-raised" ng-click="addTeam()">Add</md-button>
 	</form>
-      </p>
-    </span>
+      </md-list-item>
+    </md-list>
   </md-content>
 </md-card>

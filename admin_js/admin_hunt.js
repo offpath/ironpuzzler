@@ -113,7 +113,9 @@ app.controller('consoleCtrl', function($scope, api) {
 
 app.controller('leaderboardCtrl', function ($scope, api) {
 	$scope.refresh = function() {
+	    console.log("here");
 	    api.getLeaderboard().success(function (response) {
+		    console.log(response);
 		    $scope.Leaderboard = response;
 		});
 	}
