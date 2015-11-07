@@ -1,7 +1,15 @@
-<span ng-controller="ingredientsCtrl" ng-show="ingredients.Display">
-  Ingredients: {{ingredients.Ingredients}}<br>
-  <form ng-show="ingredients.Editable" novalidate>
-    <input type="text", ng-model="newIngredients"><br>
-    <button ng-click="updateIngredients()">Update</button>
-  </form>
-</span>
+<md-card ng-controller="ingredientsCtrl" ng-show="ingredients.Display">
+  <md-toolbar class="md-accent" layout-padding>
+    <h3>Ingredients</h3>
+  </md-toolbar>
+  <md-content flex layout-padding>
+    <form ng-show="ingredients.Editable" novalidate>
+      {{ingredients.Ingredients}}<br>
+      <md-input-container>
+	<label>New ingredients</label>
+	<input type="text", ng-model="newIngredients"><br>
+      </md-input-container>
+      <button ng-click="updateIngredients()">Update</button>
+    </form>
+  </md-content>
+</md-card>

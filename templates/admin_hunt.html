@@ -1,47 +1,53 @@
 <html ng-app="huntApp" ng-controller="adminHuntCtrl">
   <head>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0-rc1/angular-material.min.css">
     <title>Admin Console</title>
   </head>
   <body>
-    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
-
-    <div style="height:68vh;overflow:auto;border-style:solid">
-      <h1>{{hunt.Name}}</h1>
+    <div layout="column" flex>
+      <md-toolbar class="md-whiteframe-glow-z1">
+	<div layout="row" flex class="fill-height" layout-padding>
+          <h2 class="md-toolbar-item md-breadcrumb md-headline">{{hunt.Name}} > Admin Console</h2>
+	  <span flex></span>
+	</div>
+      </md-toolbar>
       
-      <p>
-	<h3>State</h3>
-	Current state: <b>{{stateTable[hunt.State]}}</b><br>
-	<span ng-show="advanceable">
-	  Next state: <b>{{stateTable[hunt.State + 1]}}</b><br>
-	  <button ng-click="advanceState()">Advance state</button>
-	</span>
-      </p>
-      
-      <p>
-	<span ng-include="'/includes/leaderboard.html'"></span>
-      </p>
-      
-      <p>
-	<span ng-include="'/includes/puzzles.html'"></span>
-      </p>
-      
-      <p>
-	<span ng-include="'/includes/teams.html'"></span>
-      </p>
-      
-      <p>
-	<span ng-include="'/includes/ingredients.html'"></span>
-      </p>
+      <div layout="row" layout-align="center">
+	<md-content md-scroll-y flex="70" layout-padding>
+	  <md-card>
+	    <md-toolbar class="md-accent" layout-padding>
+	      <h3>State</h3>
+	    </md-toolbar>
+	    <md-content flex layout-padding>
+	      Current state: <b>{{stateTable[hunt.State]}}</b><br>
+	      <span ng-show="advanceable">
+		Next state: <b>{{stateTable[hunt.State + 1]}}</b><br>
+		<md-button class="md-primary md-raised" ng-click="advanceState()">Advance state</md-button>
+	      </span>
+	    </md-content>
+	  </md-card>
+	  
+	  <span ng-include="'/includes/leaderboard.html'"></span>
+	  <span ng-include="'/includes/puzzles.html'"></span>
+	  <span ng-include="'/includes/teams.html'"></span>
+	  <span ng-include="'/includes/ingredients.html'"></span>
+	  <span ng-include="'/includes/console.html'"></span>
+	</md-content>
+      </div>
     </div>
-    <div style="height:28vh;overflow:auto;border-style:solid">
-      <p>
-	<span ng-include="'/includes/console.html'"></span>
-      </p>
-    </div>
-
+    
     <script type="text/javascript" src="/_ah/channel/jsapi"></script>
     <script>huntId={(.)}</script>
     <script>isAdmin=true</script>
+
+    <!-- Angular Material Dependencies -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-aria.min.js"></script>
+
+
+    <!-- Angular Material Javascript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0-rc1/angular-material.min.js"></script>
     <script src="/admin/js/admin_hunt.js"></script>
-  </body>
+    </body>
 </html>

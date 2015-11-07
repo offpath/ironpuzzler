@@ -1,6 +1,10 @@
-<span ng-controller="consoleCtrl">
-  <h3>Admin Console</h3>
-  <span ng-repeat="line in Lines">
-    {{line}}<br>
-  </span>
-</span>
+<md-card ng-controller="consoleCtrl">
+  <md-toolbar class="md-accent" layout-padding>
+    <h3>Admin Console</h3>
+  </md-toolbar>
+  <md-content flex layout-padding>
+    <span ng-repeat="line in Lines">
+      {{line}}<br>
+    </span>
+  </md-content>
+</md-card>

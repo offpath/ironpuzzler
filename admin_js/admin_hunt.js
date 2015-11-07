@@ -1,4 +1,10 @@
-var app = angular.module('huntApp', []);
+var app = angular.module('huntApp', ['ngMaterial']);
+
+app.config(function($mdThemingProvider) {
+	$mdThemingProvider.theme('default')
+	    .primaryPalette('blue')
+	    .accentPalette('indigo');
+    });
 
 app.factory('api', function($http) {
 	var result = {};

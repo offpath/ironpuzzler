@@ -1,29 +1,32 @@
-<span ng-controller="teamsCtrl">
-  <span ng-show="teams.Editable">
-    <p>
-      <h3>Add new team:</h3>
-      <form novalidate>
-	Name: <input type="text" ng-model="newTeamName"><br>
-	Password: <input type="text" ng-model="newTeamPassword"><br>
-	Novice: <input type="checkbox" ng-model="newTeamNovice"><br>
-	<button ng-click="addTeam()">Add</button>
-      </form>
-    </p>
-  </span>
-
-  <h3>Teams</h3>
-  <table>
-    <tr>
-      <td>Name</td>
-      <td>Password</td>
-      <td>Novice</td>
-      <td ng-show="teams.Editable">Delete</td>
-    </tr>
-    <tr ng-repeat="t in teams.Teams">
-      <td>{{t.Name}}</td>
-      <td>{{t.Password}}</td>
-      <td>{{t.Novice}}</td>
-      <td ng-show="teams.Editable"><button ng-click="deleteTeam(t.ID)">Delete</button></td>
-    </tr>
-  </table>
-</span>
+<md-card ng-controller="teamsCtrl">
+  <md-toolbar class="md-accent" layout-padding>
+    <h3>Teams</h3>
+  </md-toolbar>
+  <md-content flex layout-padding>
+    <table>
+      <tr>
+	<td>Name</td>
+	<td>Password</td>
+	<td>Novice</td>
+	<td ng-show="teams.Editable">Delete</td>
+      </tr>
+      <tr ng-repeat="t in teams.Teams">
+	<td>{{t.Name}}</td>
+	<td>{{t.Password}}</td>
+	<td>{{t.Novice}}</td>
+	<td ng-show="teams.Editable"><button ng-click="deleteTeam(t.ID)">Delete</button></td>
+      </tr>
+    </table>
+    <span ng-show="teams.Editable">
+      <p>
+	<h3>Add new team:</h3>
+	<form novalidate>
+	  Name: <input type="text" ng-model="newTeamName"><br>
+	  Password: <input type="text" ng-model="newTeamPassword"><br>
+	  Novice: <input type="checkbox" ng-model="newTeamNovice"><br>
+	  <button ng-click="addTeam()">Add</button>
+	</form>
+      </p>
+    </span>
+  </md-content>
+</md-card>
