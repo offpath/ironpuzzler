@@ -59,6 +59,11 @@ type LeaderboardInfo struct {
 	Progress []*ProgressInfo
 }
 
+type PuzzleInfo struct {
+	Editable bool
+	Puzzles []*puzzle.AdminPuzzle
+}
+
 func HuntHandler(w http.ResponseWriter, r *http.Request) {
 	path := strings.Split(r.URL.Path, "/")
 	if len(path) != 3 {
@@ -110,7 +115,18 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 	case "puzzles":
 		if t != nil {
 			puzzles := puzzle.All(c, h, t)
-			err = enc.Encode(puzzles)
+			var admin []*puzzle.AdminPuzzle
+			for _, p := range puzzles {
+				admin = append(admin, p.Admin(c))
+			}
+			// TODO(dneal): Check state.
+			err = enc.Encode(PuzzleInfo{true, admin})
+		}
+	case "updatepuzzle":
+		if p != nil {
+			p.Name = r.FormValue("name");
+			p.Answer = r.FormValue("answer");
+			p.Write(c);
 		}
 	case "channel":
 		err = enc.Encode(broadcast.GetToken(c, h, t, false))
@@ -256,7 +272,7 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 			for _, p := range puzzles {
 				admin = append(admin, p.Admin(c))
 			}
-			err = enc.Encode(admin)
+			err = enc.Encode(PuzzleInfo{false, admin})
 		}
 	case "ingredients":
 		err = enc.Encode(IngredientInfo{
@@ -307,6 +323,7 @@ func advanceState(c appengine.Context, h *hunt.Hunt, currentState int) {
 		}
 		h.State++
 		h.Write(c)
+		broadcast.SendRefresh(c, h)
 		return nil
 	}, nil)
 	if err != nil {

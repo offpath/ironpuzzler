@@ -103,6 +103,7 @@ func RemoveListener(c appengine.Context, str string) {
 }
 
 func SendRefresh(c appengine.Context, h *hunt.Hunt) {
+	c.Errorf("Refreshing!");
 	sendAll(c, h, Message{K:refresh})
 }
 

@@ -76,6 +76,18 @@ app.factory('api', function($http) {
 			     "&answer=" + encodeURIComponent(answer));
 	}
 
+	result.advanceState = function(currentState) {
+	    return $http.get(result.getURL("advancestate") +
+			     "&currentstate=" + currentState);
+	}
+
+	result.updatePuzzle = function(id, name, answer) {
+	    return $http.get(result.getURL("updatepuzzle") +
+			     "&puzzleid=" + id +
+			     "&name=" + encodeURIComponent(name) +
+			     "&answer=" + encodeURIComponent(answer));
+	}
+
 	result.addListener = function(listener) {
 	    listeners.push(listener);
 	}
@@ -83,6 +95,7 @@ app.factory('api', function($http) {
 	result.onMessage = function(message) {
 	    var j = JSON.parse(message.data);
 	    if (j.K == "refresh") {
+		console.log("Refreshing!");
 		for (var i = 0; i < listeners.length; i++) {
 		    if (listeners[i].hasOwnProperty("refresh")) {
 			listeners[i].refresh();
@@ -186,7 +199,15 @@ app.controller('puzzlesCtrl', function ($scope, api) {
 	$scope.refresh = function() {
 	    api.getPuzzles().success(function (response) {
 		    $scope.puzzles = response;
-		    $scope.hasPuzzles = (response != null && response.length > 0);
+		    console.log($scope.puzzles);
+		    $scope.hasPuzzles = (response != null && response.Puzzles.length > 0);
+		});
+	}
+
+	$scope.updatePuzzle = function(id, name, answer) {
+	    api.updatePuzzle(id, name, answer).success(function () {
+		    // TODO(dneal): Channel.
+		    $scope.refresh();
 		});
 	}
 
@@ -197,6 +218,7 @@ app.controller('puzzlesCtrl', function ($scope, api) {
 app.controller('ingredientsCtrl', function ($scope, api) {
 	$scope.refresh = function() {
 	    api.getIngredients().success(function (response) {
+		    $scope.a
 		    $scope.ingredients = response;
 		});
 	}
@@ -256,10 +278,7 @@ app.controller('stateCtrl', function ($scope, $http, api) {
 	$scope.advanceState = function() {
 	    r = window.confirm("Are you sure you wish to advance the state? This cannot be undone.");
 	    if (r) {
-		$http.get("/admin/api/advancestate?hunt_id=" + huntId +
-			  "&currentstate=" + $scope.hunt.State).success(function (response) {
-				  $scope.refreshHunt();
-			      });
+		api.advanceState($scope.state);
 	    }
 	}
 
@@ -275,6 +294,7 @@ app.controller('stateCtrl', function ($scope, $http, api) {
 	}
 
 	$scope.advanceable = false;
+	api.addListener($scope);
 	$scope.refresh();
     });
 
@@ -297,7 +317,6 @@ app.controller('signinCtrl', function($scope, $http, $cookies, api) {
 	    $scope.password = "";
 	    $scope.refresh();
 	    api.openChannel();
-	    // TODO(dneal): new channel
 	}
 
 	$scope.logout = function() {
