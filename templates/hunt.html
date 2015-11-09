@@ -1,91 +1,41 @@
-<html ng-app="huntApp" ng-controller="huntCtrl">
+<html ng-app="huntApp">
   <head>
-    <title>{{info.Name}}</title>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0-rc1/angular-material.min.css">
+    <title>Player Console</title>
   </head>
   <body>
-    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-cookies.min.js"></script>
-
-    <h1>{{info.Name}}</h1>
-
-    <span ng-show="signedIn">
-      <p>
-	Welcome {{info.Teams.CurrentTeam}}! 
-	<button ng-click="logout()">Logout</button>
-      </p>
-    </span>
-
-    <span ng-show="!signedIn">
-      <p>
-	<form novalidate>
-	  <select ng-model="teamID">
-	    <option value="" selected>--Select team--</option>
-	    <option ng-repeat="t in info.Teams.Teams" ng-value="t.ID">{{t.Name}}</option>
-	  </select>
-	  <input type="text" ng-model="password">
-	  <button ng-click="login()">Login</button>
-	</form>
-      </p>
-    </span>
-
-    <span ng-show="info.Ingredients.Display">
-      <p>
-	Ingredients: {{info.Ingredients.Ingredients}}
-      </p>
-    </span>
-
-    <span ng-show="info.Puzzles.Display"> 
-      <p>
-	Puzzles:<br>
-	<form novalidate>
-	  <table>
-	    <tr>
-	      <td>Number</td>
-	      <td>Format</td>
-	      <td>Name</td>
-	      <td>Answer</td>
-	    </tr>
-	    <tr ng-repeat="p in info.Puzzles.Puzzles">
-	      <td>{{p.Number}}</td>
-	      <td>{{puzzleFormat[p.Paper]}}</td>
-	      <td><input type="text" ng-model="p.Name"></td>
-	      <td><input type="text" ng-model="p.Answer"></td>
-	    </tr>
-	  </table>
-	  <button ng-click="updatePuzzles()">Update</button>
-	</form>
-      </p>
-    </span>
-
-    <span ng-controller="leaderboardCtrl">
-      <span ng-show="info.Leaderboard.Display">
-	<table>
-	  <tr>
-	    <td ng-show="info.Leaderboard.Answerable">Answer</td>
-	    <td>Number</td>
-	    <td>Name</td>
-	    <td>Available Points</td>
-	    <td>Solve times</td>
-	  </tr>
-	  <tr ng-repeat="p in info.Leaderboard.Progress">
-	    <td ng-show="info.Leaderboard.Answerable">
-	      <form novalidate ng-show="p.Updatable.Answerable">
-		<input type="text" ng-model="p.Answer">
-		<button ng-click="submitAnswer(p.ID, p.Answer)">Submit</button>
-	      </form>
-	      <span ng-show="p.Updatable.Solved">Solved for {{p.Updatable.GrantedPoints}} points</span>
-	    </td>
-	    <td>{{p.Number}}</td>
-	    <td>{{p.Name}}</td>
-	    <td>{{p.Updatable.AvailablePoints}}</td>
-	    <td><span ng-repeat="s in p.Updatable.SolveTimes">{{s}}, </span></td>
-	  </tr>
-	</table>
-      </span>
-    </span>
-
+  <body>
+    <div layout="column" flex>
+      <md-toolbar class="md-whiteframe-glow-z1">
+	<div layout="row" flex class="fill-height" layout-padding>
+          <h2 class="md-toolbar-item md-breadcrumb md-headline">{{hunt.Name}} > Player Console</h2>
+	  <span flex></span>
+	</div>
+      </md-toolbar>
+      
+      <div layout="row" layout-align="center">
+	<md-content md-scroll-y flex="70" layout-padding>
+	  <span ng-include="'/includes/signin.html'"></span>
+	  <span ng-include="'/includes/ingredients.html'"></span>
+	  <span ng-include="'/includes/puzzles.html'"></span>
+	  <span ng-include="'/includes/leaderboard.html'"></span>
+	</md-content>
+      </div>
+    </div>
+    
     <script type="text/javascript" src="/_ah/channel/jsapi"></script>
     <script>huntId={(.)}</script>
+    <script>isAdmin=false</script>
+
+    <!-- Angular Material Dependencies -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-cookies.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-aria.min.js"></script>
+
+
+    <!-- Angular Material Javascript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0-rc1/angular-material.min.js"></script>
     <script src="/js/hunt.js"></script>
-  </body>
+    </body>
 </html>

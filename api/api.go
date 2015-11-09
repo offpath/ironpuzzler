@@ -44,11 +44,6 @@ type IngredientInfo struct {
 	Editable bool
 	Ingredients string
 }
-	
-type PuzzlesInfo struct {
-	Display bool
-	Puzzles []*puzzle.Puzzle
-}
 
 type ProgressInfo struct {
 	Number int
@@ -62,14 +57,6 @@ type LeaderboardInfo struct {
 	Answerable bool
 	Token string
 	Progress []*ProgressInfo
-}
-
-type PageInfo struct {
-	Name string
-	Teams TeamSelector
-	Ingredients IngredientInfo
-	Puzzles PuzzlesInfo
-	Leaderboard LeaderboardInfo
 }
 
 func HuntHandler(w http.ResponseWriter, r *http.Request) {
@@ -100,33 +87,39 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 	switch path[2] {
-	case "hunt":
-		err = enc.Encode(huntInfo(c, h, t, badSignIn))
-	case "updatepuzzle":
-		if t == nil {
-			break
+	case "teaminfo":
+		teams := TeamSelector{
+			BadSignIn: badSignIn,
 		}
-		p := puzzle.ID(c, r.FormValue("puzzleid"))
-		if p != nil && p.Team.Equal(t.Key) {
-			p.Name = r.FormValue("name")
-			p.Answer = r.FormValue("answer")
-			p.Write(c)
+		if t != nil {
+			teams.CurrentTeam = t.Name
+		} else {
+			for _, t := range team.All(c, h) {
+				teams.Teams = append(teams.Teams, TeamInfo{t.Name, t.ID})
+			}
 		}
+		err = enc.Encode(teams)
 	case "leaderboard":
-		var result map[string]puzzle.UpdatableProgressInfo
-		err = datastore.RunInTransaction(c, func (c appengine.Context) error {
-			result = updatableProgressInfo(c, h, t, p)
-			return nil
-		}, nil)
-		if err != nil {
-			c.Errorf("Error: %v", err)
-			return
+		var l LeaderboardInfo
+		fillLeaderboardInfo(c, h, t, &l)
+		err = enc.Encode(l)
+	case "leaderboardupdate":
+		if p != nil {
+			err = enc.Encode(p.UpdatableProgressInfo(c, h, t))
 		}
-		err = enc.Encode(result)
+	case "puzzles":
+		if t != nil {
+			puzzles := puzzle.All(c, h, t)
+			err = enc.Encode(puzzles)
+		}
+	case "channel":
+		err = enc.Encode(broadcast.GetToken(c, h, t, false))
 	case "submitanswer":
+		c.Errorf("here1");
 		if t == nil || p == nil {
 			break
 		}
+		c.Errorf("here2");
 		var throttled, correct bool
 		err = datastore.RunInTransaction(c, func (c appengine.Context) error {
 			t := t.ReRead(c)
@@ -138,6 +131,7 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			return nil
 		}, nil)
+		c.Errorf("here3");
 		var outcome string
 		if err != nil {
 			outcome = "Error, try again!"
@@ -173,36 +167,6 @@ func updatableProgressInfo(c appengine.Context, h *hunt.Hunt, t *team.Team, p *p
 	return result
 }
 
-func huntInfo(c appengine.Context, h *hunt.Hunt, t *team.Team, badSignIn bool) *PageInfo {
-	var pageInfo PageInfo
-	pageInfo.Name = h.Name
-
-	if t != nil {
-		pageInfo.Teams.CurrentTeam = t.Name
-	} else {
-		for _, t := range team.All(c, h) {
-			pageInfo.Teams.Teams = append(pageInfo.Teams.Teams, TeamInfo{t.Name, t.ID})
-		}
-	}
-	pageInfo.Teams.BadSignIn = badSignIn
-
-	if h.State >= hunt.StateIngredients ||
-		(h.State == hunt.StateEarlyAccess && t != nil && t.Novice) {
-		pageInfo.Ingredients.Display = true
-		pageInfo.Ingredients.Ingredients = h.Ingredients
-		if h.State < hunt.StateSolving && t != nil {
-			pageInfo.Puzzles.Display = true
-			pageInfo.Puzzles.Puzzles = puzzle.All(c, h, t)
-		}
-	}
-
-	if h.State == hunt.StateSolving {
-		fillLeaderboardInfo(c, h, t, &pageInfo.Leaderboard)
-	}
-
-	return &pageInfo
-}
-
 func fillLeaderboardInfo(c appengine.Context, h *hunt.Hunt, t *team.Team, l *LeaderboardInfo) {
 	puzzles := puzzle.All(c, h, nil) 
 	for _, p := range puzzles {
@@ -226,6 +190,7 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c := appengine.NewContext(r)
+
 	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
 
@@ -246,9 +211,6 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 	switch path[3] {
-	case "hunt":
-		// Easy case
-		err = enc.Encode(h)
 	case "hunts":
 		hunts := hunt.All(c)
 		err = enc.Encode(hunts)
@@ -275,6 +237,10 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	case "deleteteam":
 		if t != nil {
 			t.Delete(c)
+		}
+	case "state":
+		if h != nil {
+			err = enc.Encode(h.State)
 		}
 	case "advancestate":
 		if h != nil {
@@ -304,7 +270,7 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		err = enc.Encode(l)
 	case "leaderboardupdate":
 		if p != nil {
-			err = enc.Encode(p.UpdatableProgressInfo(c, h, t))
+			err = enc.Encode(p.UpdatableProgressInfo(c, h, nil))
 		}
 	case "channel":
 		if h != nil {
@@ -347,3 +313,4 @@ func advanceState(c appengine.Context, h *hunt.Hunt, currentState int) {
 		c.Errorf("Error: %v", err)
 	}
 }
+

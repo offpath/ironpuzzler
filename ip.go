@@ -21,6 +21,8 @@ var (
 	puzzlesTemplate = template.Must(template.New("puzzles.html").Delims("{(", ")}").ParseFiles("templates/puzzles.html"))
 	leaderboardTemplate = template.Must(template.New("leaderboard.html").Delims("{(", ")}").ParseFiles("templates/leaderboard.html"))
 	consoleTemplate = template.Must(template.New("console.html").Delims("{(", ")}").ParseFiles("templates/console.html"))
+	stateTemplate = template.Must(template.New("state.html").Delims("{(", ")}").ParseFiles("templates/state.html"))
+	signinTemplate = template.Must(template.New("signin.html").Delims("{(", ")}").ParseFiles("templates/signin.html"))
 )
 
 func init() {
@@ -36,6 +38,8 @@ func init() {
 	http.HandleFunc("/_ah/channel/connected/", channelConnectHandler)
 	http.HandleFunc("/_ah/channel/disconnected/", channelDisconnectHandler)
 	http.HandleFunc("/includes/console.html", consoleHandler)
+	http.HandleFunc("/includes/state.html", stateHandler)
+	http.HandleFunc("/includes/signin.html", signinHandler)
 }
 
 func channelConnectHandler(w http.ResponseWriter, r *http.Request) {
@@ -114,6 +118,22 @@ func consoleHandler(w http.ResponseWriter, r *http.Request) {
 	err := consoleTemplate.Execute(w, nil)
 	if err != nil {
 		c.Errorf("consoleTemplate: %v", err)
+	}
+}
+
+func stateHandler(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	err := stateTemplate.Execute(w, nil)
+	if err != nil {
+		c.Errorf("stateTemplate: %v", err)
+	}
+}
+
+func signinHandler(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	err := signinTemplate.Execute(w, nil)
+	if err != nil {
+		c.Errorf("signinTemplate: %v", err)
 	}
 }
 

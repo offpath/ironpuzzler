@@ -1,0 +1,21 @@
+<md-card ng--controller="signinCtrl">
+  <md-toolbar class="md-accent" layout-padding>
+    <h3>Sign in</h3>
+  </md-toolbar>
+  <md-content flex layout-padding>
+    <span ng-show="teamInfo.CurrentTeam != ''">
+      Welcome {{teamInfo.CurrentTeam}}
+      <button ng-click="logout()">Logout</button>
+    </span>
+    <span ng-show="teamInfo.CurrentTeam == ''">
+      <form novalidate>
+	<select ng-model="teamID">
+	  <option value="" selected>--Select Team--</option>
+	  <option ng-repeat="t in teamInfo.Teams" ng-value="t.ID">{{t.Name}}</option>
+	</select>
+	<input ng-model="password">
+	<button ng-click="login()">Login</button>
+      </form>
+    </span>
+  </md-content>
+</md-card>

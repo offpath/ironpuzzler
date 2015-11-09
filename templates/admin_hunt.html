@@ -1,4 +1,4 @@
-<html ng-app="huntApp" ng-controller="adminHuntCtrl">
+<html ng-app="huntApp">
   <head>
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0-rc1/angular-material.min.css">
     <title>Admin Console</title>
@@ -14,19 +14,7 @@
       
       <div layout="row" layout-align="center">
 	<md-content md-scroll-y flex="70" layout-padding>
-	  <md-card>
-	    <md-toolbar class="md-accent" layout-padding>
-	      <h3>State</h3>
-	    </md-toolbar>
-	    <md-content flex layout-padding>
-	      Current state: <b>{{stateTable[hunt.State]}}</b><br>
-	      <span ng-show="advanceable">
-		Next state: <b>{{stateTable[hunt.State + 1]}}</b><br>
-		<md-button class="md-primary md-raised" ng-click="advanceState()">Advance state</md-button>
-	      </span>
-	    </md-content>
-	  </md-card>
-	  
+	  <span ng-include="'/includes/state.html'"></span>
 	  <span ng-include="'/includes/leaderboard.html'"></span>
 	  <span ng-include="'/includes/puzzles.html'"></span>
 	  <span ng-include="'/includes/teams.html'"></span>
@@ -48,6 +36,6 @@
 
     <!-- Angular Material Javascript -->
     <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0-rc1/angular-material.min.js"></script>
-    <script src="/admin/js/admin_hunt.js"></script>
+    <script src="/js/hunt.js"></script>
     </body>
 </html>
