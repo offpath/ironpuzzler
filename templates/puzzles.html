@@ -37,7 +37,7 @@
 	  </div>
 	  <div flex="10">{{p.Paper}}</div>
 	  <div flex="20">{{p.TeamName}}</div>
-	  <md-button class="md-primary md-raised" ng-click="updatePuzzle(p.ID, p.newName, p.newAnswer)">Update</md-button>
+	  <md-button ng-show="puzzles.Editable" class="md-primary md-raised" ng-click="updatePuzzle(p.ID, p.newName, p.newAnswer)">Update</md-button>
 	  <div flex></div>
 	  <md-divider ng-if="!$last"></md-divider>
 	</form>
