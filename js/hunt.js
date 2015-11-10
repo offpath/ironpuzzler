@@ -204,34 +204,42 @@ app.controller('puzzlesCtrl', function ($scope, api) {
 		});
 	}
 
+	$scope.onMessage = function(message) {
+	    if (message.K == "puzzlesupdate") {
+		$scope.refresh();
+	    }
+	}
+
 	$scope.updatePuzzle = function(id, name, answer) {
-	    api.updatePuzzle(id, name, answer).success(function () {
-		    // TODO(dneal): Channel.
-		    $scope.refresh();
-		});
+	    api.updatePuzzle(id, name, answer);
 	}
 
 	$scope.hasPuzzles = false;
+	api.addListener($scope);
 	$scope.refresh();
     });
 
 app.controller('ingredientsCtrl', function ($scope, api) {
 	$scope.refresh = function() {
 	    api.getIngredients().success(function (response) {
-		    $scope.a
 		    $scope.ingredients = response;
 		});
+	}
+
+	$scope.onMessage = function(message) {
+	    if (message.K == "ingredientsupdate") {
+		$scope.refresh();
+	    }
 	}
 
 	$scope.updateIngredients = function() {
 	    api.setIngredients($scope.newIngredients).success(function () {
 		    $scope.newIngredients = "";
-		    // TODO(dneal): Go through channel?
-		    $scope.refresh();
 		});
 	}
 
 	$scope.newIngredents = "";
+	api.addListener($scope);
 	$scope.refresh();
     });
 
@@ -242,27 +250,29 @@ app.controller('teamsCtrl', function ($scope, api) {
 		});
 	}
 
+	$scope.onMessage = function(message) {
+	    if (message.K == "teamsupdate") {
+		$scope.refresh();
+	    }
+	}
+
 	$scope.addTeam = function() {
 	    api.addTeam($scope.newTeamName, $scope.newTeamPassword,
 			$scope.newTeamNovice).success(function () {
 				$scope.newTeamName = "";
 				$scope.newTeamPassword = "";
 				$scope.newTeamNovice = false;
-				// TODO(dneal): Rely on channel?
-				$scope.refresh();
 			    });
 	}
 
 	$scope.deleteTeam = function(id) {
-	    api.deleteTeam(id).success(function () {
-		    // TODO(dneal): Rely on channel?
-		    $scope.refresh();
-		});
+	    api.deleteTeam(id);
 	}
 
 	$scope.newTeamName = "";
 	$scope.newTeamPassword = "";
 	$scope.newTeamNovice = false;
+	api.addListener($scope);
 	$scope.refresh();
     });
 
@@ -273,7 +283,6 @@ app.controller('stateCtrl', function ($scope, $http, api) {
 		    $scope.advanceable = ($scope.state != 7);
 		});
 	}
-
 	
 	$scope.advanceState = function() {
 	    r = window.confirm("Are you sure you wish to advance the state? This cannot be undone.");

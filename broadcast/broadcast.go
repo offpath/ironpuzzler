@@ -25,6 +25,7 @@ const (
 	surveyUpdate = "surveyupdate"
 	teamsUpdate = "teamsupdate"
 	consoleUpdate = "consoleupdate"
+	ingredientsUpdate = "ingredientsupdate"
 )
 
 type Listener struct {
@@ -127,6 +128,10 @@ func SendTeamsUpdate(c appengine.Context, h *hunt.Hunt) {
 
 func SendConsoleUpdate(c appengine.Context, h *hunt.Hunt, str string) {
 	sendAdmin(c, h, Message{K:consoleUpdate,V:str})
+}
+
+func SendIngredientsUpdate(c appengine.Context, h *hunt.Hunt) {
+	sendAdmin(c, h, Message{K:ingredientsUpdate})
 }
 
 func sendAll(c appengine.Context, h *hunt.Hunt, m Message) {

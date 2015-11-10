@@ -104,6 +104,9 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		err = enc.Encode(teams)
+	case "ingredients":
+		// TODO(dneal): Check state.
+		err = enc.Encode(IngredientInfo{true, false, h.Ingredients})
 	case "leaderboard":
 		var l LeaderboardInfo
 		fillLeaderboardInfo(c, h, t, &l)
@@ -127,6 +130,7 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 			p.Name = r.FormValue("name");
 			p.Answer = r.FormValue("answer");
 			p.Write(c);
+			broadcast.SendPuzzlesUpdate(c, h, t)
 		}
 	case "channel":
 		err = enc.Encode(broadcast.GetToken(c, h, t, false))
@@ -238,6 +242,7 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		if h != nil {
 			h.Ingredients = r.FormValue("ingredients")
 			h.Write(c)
+			broadcast.SendIngredientsUpdate(c, h)
 		}
 	case "teams":
 		if h != nil {
@@ -249,10 +254,12 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	case "addteam":
 		if h != nil {
 			team.New(c, h, r.FormValue("name"), r.FormValue("password"), r.FormValue("novice") == "true")
+			broadcast.SendTeamsUpdate(c, h)
 		}
 	case "deleteteam":
 		if t != nil {
 			t.Delete(c)
+			broadcast.SendTeamsUpdate(c, h)
 		}
 	case "state":
 		if h != nil {
@@ -263,6 +270,7 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 			currentState, err := strconv.Atoi(r.FormValue("currentstate"))
 			if err == nil {
 				advanceState(c, h, currentState)
+				broadcast.SendRefresh(c, h)
 			}
 		}
 	case "puzzles":
