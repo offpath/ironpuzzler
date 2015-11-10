@@ -20,6 +20,7 @@ type Team struct {
 	Novice bool
 	Hunt *datastore.Key `json:"-"`
 	Attempts []time.Time
+	Survey string
 
 	ID string `datastore:"-"`
 	Key *datastore.Key `datastore:"-" json:"-"`

@@ -88,6 +88,15 @@ app.factory('api', function($http) {
 			     "&answer=" + encodeURIComponent(answer));
 	}
 
+	result.getSurveyInfo = function() {
+	    return $http.get(result.getURL("survey"));
+	}
+
+	result.submitSurvey = function(res) {
+	    return $http.get(result.getURL("submitsurvey") +
+			     "&result=" + res);
+	}
+
 	result.addListener = function(listener) {
 	    listeners.push(listener);
 	}
@@ -313,7 +322,7 @@ app.controller('stateCtrl', function ($scope, $http, api) {
 	$scope.refresh();
     });
 
-app.controller('signinCtrl', function($scope, $http, $cookies, api) {
+app.controller('signinCtrl', function($scope, $cookies, api) {
 	$scope.refresh = function() {
 	    api.getTeamInfo().success(function (response) {
 		    $scope.teamInfo = response;
@@ -344,3 +353,37 @@ app.controller('signinCtrl', function($scope, $http, $cookies, api) {
 	$scope.refresh();
     });
 
+app.controller('surveyCtrl', function($scope, api) {
+	$scope.refresh = function() {
+	    api.getSurveyInfo().success(function (response) {
+		    $scope.surveyInfo = response;
+		    if ($scope.surveyInfo.Puzzles != null) {
+			for (var i = 0; i < $scope.surveyInfo.Puzzles.length; i++) {
+			    var p = $scope.surveyInfo.Puzzles[i];
+			    p.fun = 1;
+			    p.presentation = 1;
+			    p.ingredients = 1;
+			}
+		    }
+		});
+	}
+
+	$scope.submit = function() {
+	    var result = "";
+	    for (var i = 0; i < $scope.surveyInfo.Puzzles.length; i++) {
+		var p = $scope.surveyInfo.Puzzles[i];
+		result = result.concat(p.fun);
+		result = result.concat(p.presentation);
+		result = result.concat(p.ingredients);
+	    }
+	    api.submitSurvey(result);
+	}
+
+	$scope.onMessage = function(message) {
+	    if (message.K == "surveyupdate") {
+		$scope.refresh();
+	    }
+	}
+	api.addListener($scope);
+	$scope.refresh();
+    });

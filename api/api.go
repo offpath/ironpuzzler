@@ -64,6 +64,12 @@ type PuzzleInfo struct {
 	Puzzles []*puzzle.AdminPuzzle
 }
 
+type SurveyInfo struct {
+	Display bool
+	Done bool
+	Puzzles []*ProgressInfo
+}
+
 func HuntHandler(w http.ResponseWriter, r *http.Request) {
 	path := strings.Split(r.URL.Path, "/")
 	if len(path) != 3 {
@@ -132,14 +138,35 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 			p.Write(c);
 			broadcast.SendPuzzlesUpdate(c, h, t)
 		}
+	case "survey":
+		if t != nil && h.State == hunt.StateGrading {
+			info := SurveyInfo{Display: true}
+			if t.Survey != "" {
+				info.Done = true
+			} else {
+				puzzles := puzzle.All(c, h, nil)
+				for _, p := range puzzles {
+					info.Puzzles = append(info.Puzzles, &ProgressInfo{
+						Number: p.Number,
+						Name: p.Name,
+						ID: p.ID,
+					})
+				}
+			}
+			err = enc.Encode(info)
+		}
+	case "submitsurvey":
+		if t != nil && t.Survey == "" {
+			t.Survey = r.FormValue("result")
+			t.Write(c)
+			broadcast.SendSurveyUpdate(c, h, t)
+		}
 	case "channel":
 		err = enc.Encode(broadcast.GetToken(c, h, t, false))
 	case "submitanswer":
-		c.Errorf("here1");
 		if t == nil || p == nil {
 			break
 		}
-		c.Errorf("here2");
 		var throttled, correct bool
 		err = datastore.RunInTransaction(c, func (c appengine.Context) error {
 			t := t.ReRead(c)
@@ -151,7 +178,6 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			return nil
 		}, nil)
-		c.Errorf("here3");
 		var outcome string
 		if err != nil {
 			outcome = "Error, try again!"

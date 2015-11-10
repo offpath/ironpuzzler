@@ -118,8 +118,10 @@ func SendPuzzlesUpdate(c appengine.Context, h *hunt.Hunt, t *team.Team) {
 	sendTeam(c, h, t, m)
 }
 
-func SendSurveyUpdate(c appengine.Context, h *hunt.Hunt) {
-	sendAdmin(c, h, Message{K:surveyUpdate})
+func SendSurveyUpdate(c appengine.Context, h *hunt.Hunt, t *team.Team) {
+	m := Message{K:surveyUpdate}
+	sendAdmin(c, h, m)
+	sendTeam(c, h, t, m)
 }
 
 func SendTeamsUpdate(c appengine.Context, h *hunt.Hunt) {

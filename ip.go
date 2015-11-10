@@ -23,6 +23,7 @@ var (
 	consoleTemplate = template.Must(template.New("console.html").Delims("{(", ")}").ParseFiles("templates/console.html"))
 	stateTemplate = template.Must(template.New("state.html").Delims("{(", ")}").ParseFiles("templates/state.html"))
 	signinTemplate = template.Must(template.New("signin.html").Delims("{(", ")}").ParseFiles("templates/signin.html"))
+	surveyTemplate = template.Must(template.New("survey.html").Delims("{(", ")}").ParseFiles("templates/survey.html"))
 )
 
 func init() {
@@ -40,6 +41,7 @@ func init() {
 	http.HandleFunc("/includes/console.html", consoleHandler)
 	http.HandleFunc("/includes/state.html", stateHandler)
 	http.HandleFunc("/includes/signin.html", signinHandler)
+	http.HandleFunc("/includes/survey.html", surveyHandler)
 }
 
 func channelConnectHandler(w http.ResponseWriter, r *http.Request) {
@@ -134,6 +136,14 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 	err := signinTemplate.Execute(w, nil)
 	if err != nil {
 		c.Errorf("signinTemplate: %v", err)
+	}
+}
+
+func surveyHandler(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	err := surveyTemplate.Execute(w, nil)
+	if err != nil {
+		c.Errorf("surveyTemplate: %v", err)
 	}
 }
 
