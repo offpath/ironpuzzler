@@ -5,16 +5,20 @@
   <md-content flex layout-padding>
     <span ng-show="teamInfo.CurrentTeam != ''">
       Welcome {{teamInfo.CurrentTeam}}
-      <button ng-click="logout()">Logout</button>
+      <md-button ng-click="logout()" class="md-primary md-raised">Logout</md-button>
     </span>
-    <span ng-show="teamInfo.CurrentTeam == ''">
+    <span ng-show="teamInfo.CurrentTeam == ''" layout="row">
       <form novalidate>
-	<select ng-model="teamID">
-	  <option value="" selected>--Select Team--</option>
-	  <option ng-repeat="t in teamInfo.Teams" ng-value="t.ID">{{t.Name}}</option>
-	</select>
-	<input ng-model="password">
-	<button ng-click="login()">Login</button>
+	<md-input-container>
+	  <label>Team</label>
+	  <md-select ng-model="teamID">
+	    <md-option ng-repeat="t in teamInfo.Teams" ng-value="t.ID">{{t.Name}}</md-option>
+	  </md-select>
+	</md-input-container>
+	<md-input-container md-no-float>
+	  <input ng-model="password">
+	</md-input-container>
+	<md-button ng-click="login()" class="md-primary md-raised">Login</md-button>
       </form>
     </span>
   </md-content>
