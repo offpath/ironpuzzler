@@ -126,6 +126,10 @@ app.factory('api', function($http) {
 		    result.socket = channel.open();
 		    result.socket.onmessage = result.onMessage;
 		    result.socket.onError = result.onError;
+		    // Refresh the channel in 90 min.
+		    window.setTimeout(function () {
+			    result.openChannel();
+			}, 1000 * 60 * 90);
 		    if (doRefresh) {
 			for (var i = 0; i < listeners.length; i++) {
 			    if (listeners[i].hasOwnProperty("refresh")) {
@@ -152,7 +156,9 @@ app.controller('consoleCtrl', function($scope, api) {
 
 	$scope.Lines = [];
 	api.getConsole().success(function (response) {
-		$scope.Lines = response;
+		if (response != null) {
+		    $scope.Lines = response;
+		}
 	    });
 	api.addListener($scope);
     });
