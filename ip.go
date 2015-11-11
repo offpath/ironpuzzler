@@ -24,6 +24,7 @@ var (
 	stateTemplate = template.Must(template.New("state.html").Delims("{(", ")}").ParseFiles("templates/state.html"))
 	signinTemplate = template.Must(template.New("signin.html").Delims("{(", ")}").ParseFiles("templates/signin.html"))
 	surveyTemplate = template.Must(template.New("survey.html").Delims("{(", ")}").ParseFiles("templates/survey.html"))
+	adminSurveyTemplate = template.Must(template.New("admin_survey.html").Delims("{(", ")}").ParseFiles("templates/admin_survey.html"))
 )
 
 func init() {
@@ -42,6 +43,7 @@ func init() {
 	http.HandleFunc("/includes/state.html", stateHandler)
 	http.HandleFunc("/includes/signin.html", signinHandler)
 	http.HandleFunc("/includes/survey.html", surveyHandler)
+	http.HandleFunc("/includes/admin_survey.html", adminSurveyHandler)
 }
 
 func channelConnectHandler(w http.ResponseWriter, r *http.Request) {
@@ -144,6 +146,14 @@ func surveyHandler(w http.ResponseWriter, r *http.Request) {
 	err := surveyTemplate.Execute(w, nil)
 	if err != nil {
 		c.Errorf("surveyTemplate: %v", err)
+	}
+}
+
+func adminSurveyHandler(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	err := adminSurveyTemplate.Execute(w, nil)
+	if err != nil {
+		c.Errorf("adminSurveyTemplate: %v", err)
 	}
 }
 

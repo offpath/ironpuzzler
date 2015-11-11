@@ -1,0 +1,17 @@
+<md-card ng-controller="adminSurveyCtrl" ng-show="adminSurveyInfo.Display">
+  <md-toolbar class="md-accent" layout-padding>
+    <h3>Voting</h3>
+  </md-toolbar>
+  <md-content flex layout-padding>
+    <md-list>
+      <md-list-item ng-repeat="t in adminSurveyInfo.Teams">
+	<div class="md-list-item-text">
+	  <h3>{{t.Name}}</h3>
+	</div>
+	<div flex></div>
+	<div ng-show="t.Done">Done!</div>
+	<md-divider ng-if="!$last"></md-divider>
+      </md-list-item>
+    </md-list>
+  </md-content>
+</md-card>

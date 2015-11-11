@@ -92,6 +92,10 @@ app.factory('api', function($http) {
 	    return $http.get(result.getURL("survey"));
 	}
 
+	result.getAdminSurveyInfo = function() {
+	    return $http.get(result.getURL("adminsurvey"));
+	}
+
 	result.submitSurvey = function(res) {
 	    return $http.get(result.getURL("submitsurvey") +
 			     "&result=" + res);
@@ -353,6 +357,23 @@ app.controller('signinCtrl', function($scope, $cookies, api) {
 	$scope.refresh();
     });
 
+app.controller('adminSurveyCtrl', function($scope, api) {
+	$scope.refresh = function() {
+	    api.getAdminSurveyInfo().success(function (response) {
+		    $scope.adminSurveyInfo = response;
+		});
+	}
+
+	$scope.onMessage = function(message) {
+	    if (message.K == "surveyupdate") {
+		$scope.refresh();
+	    }
+	}
+
+	api.addListener($scope);
+	$scope.refresh();
+    });
+
 app.controller('surveyCtrl', function($scope, api) {
 	$scope.refresh = function() {
 	    api.getSurveyInfo().success(function (response) {
@@ -384,6 +405,7 @@ app.controller('surveyCtrl', function($scope, api) {
 		$scope.refresh();
 	    }
 	}
+
 	api.addListener($scope);
 	$scope.refresh();
     });

@@ -70,6 +70,16 @@ type SurveyInfo struct {
 	Puzzles []*ProgressInfo
 }
 
+type TeamSurveyInfo struct {
+	Name string
+	Done bool
+}
+
+type AdminSurveyInfo struct {
+	Display bool
+	Teams []TeamSurveyInfo
+}
+
 func HuntHandler(w http.ResponseWriter, r *http.Request) {
 	path := strings.Split(r.URL.Path, "/")
 	if len(path) != 3 {
@@ -329,6 +339,15 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	case "console":
 		if h != nil {
 			err = enc.Encode(adminconsole.Logs(c, h))
+		}
+	case "adminsurvey":
+		if h != nil {
+			var info AdminSurveyInfo
+			info.Display = true
+			for _, t := range team.All(c, h) {
+				info.Teams = append(info.Teams, TeamSurveyInfo{t.Name, t.Survey != ""})
+			}
+			err = enc.Encode(info)
 		}
 	}
 	
