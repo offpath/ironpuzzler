@@ -25,6 +25,7 @@ var (
 	signinTemplate = template.Must(template.New("signin.html").Delims("{(", ")}").ParseFiles("templates/signin.html"))
 	surveyTemplate = template.Must(template.New("survey.html").Delims("{(", ")}").ParseFiles("templates/survey.html"))
 	adminSurveyTemplate = template.Must(template.New("admin_survey.html").Delims("{(", ")}").ParseFiles("templates/admin_survey.html"))
+	finalScoresTemplate = template.Must(template.New("final_scores.html").Delims("{(", ")}").ParseFiles("templates/final_scores.html"))
 )
 
 func init() {
@@ -44,6 +45,7 @@ func init() {
 	http.HandleFunc("/includes/signin.html", signinHandler)
 	http.HandleFunc("/includes/survey.html", surveyHandler)
 	http.HandleFunc("/includes/admin_survey.html", adminSurveyHandler)
+	http.HandleFunc("/includes/final_scores.html", finalScoresHandler)
 }
 
 func channelConnectHandler(w http.ResponseWriter, r *http.Request) {
@@ -154,6 +156,14 @@ func adminSurveyHandler(w http.ResponseWriter, r *http.Request) {
 	err := adminSurveyTemplate.Execute(w, nil)
 	if err != nil {
 		c.Errorf("adminSurveyTemplate: %v", err)
+	}
+}
+
+func finalScoresHandler(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	err := finalScoresTemplate.Execute(w, nil)
+	if err != nil {
+		c.Errorf("finalScoresTemplate: %v", err)
 	}
 }
 

@@ -13,10 +13,9 @@ const (
 	StateEarlyAccess = 1
 	StateIngredients = 2
 	StateSolving = 3
-	StateGrading = 4
-	StateTallying = 5
-	StateTallyingDone = 6
-	StateDone = 7
+	StateSurveying = 4
+	StateTallyingDone = 5
+	StateDone = 6
 
 	huntKind = "Hunt"
 )

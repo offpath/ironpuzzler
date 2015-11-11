@@ -16,6 +16,7 @@ import (
 	"broadcast"
 	"hunt"
 	"puzzle"
+	"tally"
 	"team"
 )
 
@@ -55,7 +56,6 @@ type ProgressInfo struct {
 type LeaderboardInfo struct {
 	Display bool
 	Answerable bool
-	Token string
 	Progress []*ProgressInfo
 }
 
@@ -121,18 +121,21 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		err = enc.Encode(teams)
 	case "ingredients":
-		// TODO(dneal): Check state.
-		err = enc.Encode(IngredientInfo{true, false, h.Ingredients})
+		if h.State >= hunt.StateIngredients || (t != nil && t.Novice && h.State == hunt.StateEarlyAccess) {
+			err = enc.Encode(IngredientInfo{true, false, h.Ingredients})
+		}
 	case "leaderboard":
-		var l LeaderboardInfo
-		fillLeaderboardInfo(c, h, t, &l)
-		err = enc.Encode(l)
+		if h.State >= hunt.StateSolving {
+			var l LeaderboardInfo
+			fillLeaderboardInfo(c, h, t, &l)
+			err = enc.Encode(l)
+		}
 	case "leaderboardupdate":
-		if p != nil {
+		if p != nil && h.State >= hunt.StateSolving {
 			err = enc.Encode(p.UpdatableProgressInfo(c, h, t))
 		}
 	case "puzzles":
-		if t != nil {
+		if t != nil && (h.State >= hunt.StateIngredients || (t.Novice && h.State == hunt.StateEarlyAccess)) && h.State < hunt.StateSolving {
 			puzzles := puzzle.All(c, h, t)
 			var admin []*puzzle.AdminPuzzle
 			for _, p := range puzzles {
@@ -142,20 +145,23 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 			err = enc.Encode(PuzzleInfo{true, admin})
 		}
 	case "updatepuzzle":
-		if p != nil {
+		if p != nil && h.State < hunt.StateSolving{
 			p.Name = r.FormValue("name");
 			p.Answer = r.FormValue("answer");
 			p.Write(c);
 			broadcast.SendPuzzlesUpdate(c, h, t)
 		}
 	case "survey":
-		if t != nil && h.State == hunt.StateGrading {
+		if t != nil && h.State == hunt.StateSurveying {
 			info := SurveyInfo{Display: true}
 			if t.Survey != "" {
 				info.Done = true
 			} else {
 				puzzles := puzzle.All(c, h, nil)
 				for _, p := range puzzles {
+					if p.Team.Equal(t.Key) {
+						continue
+					}
 					info.Puzzles = append(info.Puzzles, &ProgressInfo{
 						Number: p.Number,
 						Name: p.Name,
@@ -174,7 +180,7 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 	case "channel":
 		err = enc.Encode(broadcast.GetToken(c, h, t, false))
 	case "submitanswer":
-		if t == nil || p == nil {
+		if t == nil || p == nil || h.State != hunt.StateSolving{
 			break
 		}
 		var throttled, correct bool
@@ -233,9 +239,8 @@ func fillLeaderboardInfo(c appengine.Context, h *hunt.Hunt, t *team.Team, l *Lea
 			Updatable: p.UpdatableProgressInfo(c, h, t),
 		})
 	}
-	l.Token = broadcast.GetToken(c, h, t, false)
 	l.Display = true
-	l.Answerable = t != nil
+	l.Answerable = t != nil && h.State == hunt.StateSolving
 }
 
 func AdminHandler(w http.ResponseWriter, r *http.Request) {
@@ -275,7 +280,7 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	case "deletehunt":
 		h.Delete(c)
 	case "updateingredients":
-		if h != nil {
+		if h != nil && h.State < hunt.StateEarlyAccess {
 			h.Ingredients = r.FormValue("ingredients")
 			h.Write(c)
 			broadcast.SendIngredientsUpdate(c, h)
@@ -288,12 +293,12 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 			})
 		}
 	case "addteam":
-		if h != nil {
+		if h != nil && h.State < hunt.StateEarlyAccess {
 			team.New(c, h, r.FormValue("name"), r.FormValue("password"), r.FormValue("novice") == "true")
 			broadcast.SendTeamsUpdate(c, h)
 		}
 	case "deleteteam":
-		if t != nil {
+		if t != nil && h.State < hunt.StateEarlyAccess {
 			t.Delete(c)
 			broadcast.SendTeamsUpdate(c, h)
 		}
@@ -325,9 +330,11 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 			Ingredients: h.Ingredients,
 		})
 	case "leaderboard":
-		var l LeaderboardInfo
-		fillLeaderboardInfo(c, h, nil, &l)
-		err = enc.Encode(l)
+		if h.State >= hunt.StateSolving {
+			var l LeaderboardInfo
+			fillLeaderboardInfo(c, h, nil, &l)
+			err = enc.Encode(l)
+		}
 	case "leaderboardupdate":
 		if p != nil {
 			err = enc.Encode(p.UpdatableProgressInfo(c, h, nil))
@@ -341,13 +348,18 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 			err = enc.Encode(adminconsole.Logs(c, h))
 		}
 	case "adminsurvey":
-		if h != nil {
+		if h != nil && h.State == hunt.StateSurveying {
 			var info AdminSurveyInfo
 			info.Display = true
 			for _, t := range team.All(c, h) {
 				info.Teams = append(info.Teams, TeamSurveyInfo{t.Name, t.Survey != ""})
 			}
 			err = enc.Encode(info)
+		}
+	case "finalscores":
+		if h != nil && h.State > hunt.StateSurveying {
+			finalScores := tally.Get(c, h)
+			err = enc.Encode(finalScores)
 		}
 	}
 	
@@ -373,6 +385,8 @@ func advanceState(c appengine.Context, h *hunt.Hunt, currentState int) {
 				puzzle.New(c, h, teams[i], nonPaperOrder[i] + 1, false)
 				puzzle.New(c, h, teams[i], len(teams) + paperOrder[i] + 1, true)
 			}
+		case hunt.StateSurveying:
+			tally.BuildFinalTally(c, h)
 		}
 		h.State++
 		h.Write(c)

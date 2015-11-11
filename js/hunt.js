@@ -101,6 +101,10 @@ app.factory('api', function($http) {
 			     "&result=" + res);
 	}
 
+	result.getFinalScores = function() {
+	    return $http.get(result.getURL("finalscores"));
+	}
+	
 	result.addListener = function(listener) {
 	    listeners.push(listener);
 	}
@@ -108,7 +112,6 @@ app.factory('api', function($http) {
 	result.onMessage = function(message) {
 	    var j = JSON.parse(message.data);
 	    if (j.K == "refresh") {
-		console.log("Refreshing!");
 		for (var i = 0; i < listeners.length; i++) {
 		    if (listeners[i].hasOwnProperty("refresh")) {
 			listeners[i].refresh();
@@ -218,8 +221,7 @@ app.controller('puzzlesCtrl', function ($scope, api) {
 	$scope.refresh = function() {
 	    api.getPuzzles().success(function (response) {
 		    $scope.puzzles = response;
-		    console.log($scope.puzzles);
-		    $scope.hasPuzzles = (response != null && response.Puzzles.length > 0);
+		    $scope.hasPuzzles = (response != null && response.Puzzles != null && response.Puzzles.length > 0);
 		});
 	}
 
@@ -299,7 +301,7 @@ app.controller('stateCtrl', function ($scope, $http, api) {
 	$scope.refresh = function() {
 	    api.getState().success(function (response) {
 		    $scope.state = response;
-		    $scope.advanceable = ($scope.state != 7);
+		    $scope.advanceable = ($scope.state != 6);
 		});
 	}
 	
@@ -316,9 +318,8 @@ app.controller('stateCtrl', function ($scope, $http, api) {
 	    2: "Ingredients released",
 	    3: "Solving",
 	    4: "Surveying",
-	    5: "Tallying results",
-	    6: "Tallying done",
-	    7: "Results released",
+	    5: "Tallying done",
+	    6: "Results released",
 	}
 
 	$scope.advanceable = false;
@@ -408,4 +409,12 @@ app.controller('surveyCtrl', function($scope, api) {
 
 	api.addListener($scope);
 	$scope.refresh();
+    });
+
+app.controller('finalScoresCtrl', function($scope, api) {
+	$scope.get = function() {
+	    api.getFinalScores().success(function (response) {
+		    console.log(response);
+		});
+	}
     });

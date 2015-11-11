@@ -213,3 +213,15 @@ func New(c appengine.Context, h *hunt.Hunt, t *team.Team, number int, paper bool
 	return newPuzzle
 }
 
+func GetSolve(c appengine.Context, h *hunt.Hunt, p *Puzzle, t *team.Team) *Solve {
+	var solves []*Solve
+	_, err := datastore.NewQuery(solveKind).Ancestor(h.Key).Filter("Puzzle =", p.Key).Filter("Team =", t.Key).Limit(1).GetAll(c, &solves)
+	if err != nil {
+		c.Errorf("Error: %v", err)
+		return nil
+	}
+	if len(solves) == 0 {
+		return nil
+	}
+	return solves[0]
+}
