@@ -1,0 +1,37 @@
+<md-card ng-controller="surveyCtrl" ng-show="surveyInfo.Display">
+  <md-toolbar class="md-accent" layout-padding>
+    <h3>Voting</h3>
+  </md-toolbar>
+  <md-content flex layout-padding>
+    <span ng-show="surveyInfo.Done">
+      Thank you for voting!
+    </span>
+    <span ng-show="!surveyInfo.Done">
+      <span ng-repeat="p in surveyInfo.Puzzles">
+	<h3>{{p.Number}}. {{p.Name}}</h3>
+	<div layout>
+	  <div flex="10" layout layout-align="center center">
+            <span class="md-body-1">Fun</span>
+	  </div>
+	  <md-slider flex md-discrete ng-model="p.fun" step="1" min="1" max="5" aria-label="rating">
+	  </md-slider>
+	</div>
+	<div layout>
+	  <div flex="10" layout layout-align="center center">
+            <span class="md-body-1">Presentation</span>
+	  </div>
+	  <md-slider flex md-discrete ng-model="p.presentation" step="1" min="1" max="5" aria-label="rating">
+	  </md-slider>
+	</div>
+	<div layout>
+	  <div flex="10" layout layout-align="center center">
+          <span class="md-body-1">Ingredients</span>
+	  </div>
+	  <md-slider flex md-discrete ng-model="p.ingredients" step="1" min="1" max="5" aria-label="rating">
+	  </md-slider>
+	</div>
+      </span>
+      <md-button class="md-primary md-raised" ng-click="submit()">Submit</md-button>
+    </span>
+  </md-content>
+</md-card>
