@@ -1,14 +1,13 @@
-<html ng-app="huntApp">
+<html>
   <head>
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0-rc1/angular-material.min.css">
     <title>Player Console</title>
   </head>
   <body>
-  <body>
-    <div layout="column" flex>
+    <div layout="column" flex ng-app="huntApp" ng-cloak>
       <md-toolbar class="md-whiteframe-glow-z1">
 	<div layout="row" flex class="fill-height" layout-padding>
-          <h2 class="md-toolbar-item md-breadcrumb md-headline">{{hunt.Name}} > Player Console</h2>
+          <h2 class="md-toolbar-item md-breadcrumb md-headline">{(.Name)} > Player Console</h2>
 	  <span flex></span>
 	</div>
       </md-toolbar>
@@ -25,7 +24,7 @@
     </div>
     
     <script type="text/javascript" src="/_ah/channel/jsapi"></script>
-    <script>huntId={(.)}</script>
+    <script>huntId={(.ID)}</script>
     <script>isAdmin=false</script>
 
     <!-- Angular Material Dependencies -->
@@ -38,5 +37,5 @@
     <!-- Angular Material Javascript -->
     <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.0.0-rc1/angular-material.min.js"></script>
     <script src="/js/hunt.js"></script>
-    </body>
+  </body>
 </html>

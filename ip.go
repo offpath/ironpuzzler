@@ -69,7 +69,7 @@ func pathHandler(w http.ResponseWriter, r *http.Request, t *template.Template) {
 		return
 	}
 
-	err := t.Execute(w, h.ID)
+	err := t.Execute(w, h)
 	if err != nil {
 		c.Errorf("template: %v", err)
 	}
