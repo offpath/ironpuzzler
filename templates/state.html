@@ -2,12 +2,12 @@
   <md-toolbar class="md-accent" layout-padding>
     <h3>State</h3>
   </md-toolbar>
-  <md-content flex layout-padding>
+  <md-card-content layout-padding>
     Current state: <b>{{stateTable[state]}}</b><br>
     <span ng-show="advanceable">
       Next state: <b>{{stateTable[state + 1]}}</b><br>
       <md-button class="md-primary md-raised" ng-click="advanceState()">Advance state</md-button>
     </span>
-  </md-content>
+  </md-card-content>
 </md-card>
 	  

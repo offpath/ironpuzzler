@@ -2,7 +2,7 @@
   <md-toolbar class="md-accent" layout-padding>
     <h3>Ingredients</h3>
   </md-toolbar>
-  <md-content flex layout-padding>
+  <md-card-content layout-padding>
     {{ingredients.Ingredients}}<br>
     <form ng-show="ingredients.Editable" novalidate>
       <md-input-container md-no-float>
@@ -10,5 +10,5 @@
       </md-input-container>
       <md-button class="md-primary md-raised" ng-click="updateIngredients()">Update</md-button>
     </form>
-  </md-content>
+  </md-card-content>
 </md-card>

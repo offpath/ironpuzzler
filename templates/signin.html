@@ -2,7 +2,7 @@
   <md-toolbar class="md-accent" layout-padding>
     <h3>Sign in</h3>
   </md-toolbar>
-  <md-content flex layout-padding>
+  <md-card-content layout-padding>
     <span ng-show="teamInfo.CurrentTeam != ''">
       Welcome {{teamInfo.CurrentTeam}}
       <md-button ng-click="logout()" class="md-primary md-raised">Logout</md-button>
@@ -21,5 +21,5 @@
 	<md-button ng-click="login()" class="md-primary md-raised">Login</md-button>
       </form>
     </span>
-  </md-content>
+  </md-card-content>
 </md-card>
