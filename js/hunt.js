@@ -127,7 +127,8 @@ app.factory('api', function($http) {
 	}
 
 	result.onError = function(message) {
-	    result.openChannel();
+	    console.log("Channel error");
+	    console.log(message);
 	}
 
 	result.openChannel = function() {
@@ -138,10 +139,10 @@ app.factory('api', function($http) {
 		doRefresh = true;
 	    }
 	    $http.get(result.getURL("channel")).success(function (response) {
-		    channel = new goog.appengine.Channel(response)
+		    channel = new goog.appengine.Channel(response);
 		    result.socket = channel.open();
 		    result.socket.onmessage = result.onMessage;
-		    result.socket.onError = result.onError;
+		    result.socket.onerror = result.onError;
 		    // Refresh the channel in 90 min.
 		    window.setTimeout(function () {
 			    result.openChannel();

@@ -18,7 +18,7 @@ const (
 	listenerKind = "Listener"
 	unauthListener = "unauth"
 	adminListener = "admin"
-
+	
 	refresh = "refresh"
 	leaderboardUpdate = "leaderboardupdate"
 	puzzlesUpdate = "puzzlesupdate"
@@ -30,8 +30,10 @@ const (
 
 type Listener struct {
 	Channel string
+	Timestamp string
 	TeamID string
 	Admin bool
+	Open bool
 }
 
 type Message struct {
@@ -40,16 +42,24 @@ type Message struct {
 }
 
 func GetToken(c appengine.Context, h *hunt.Hunt, t *team.Team, admin bool) string {
-	// Channel name format: huntID.teamID/admin/unauth.timestamp
-	var channelName string
-	middle := unauthListener
-	if admin {
-		middle = adminListener
-	} else if t != nil {
-		middle = t.ID
-	}
-	channelName = fmt.Sprintf("%s.%s.%d", h.ID, middle, time.Now().UnixNano())
+	// Channel name format: huntID.timestamp
+	timestamp := fmt.Sprintf("%d", time.Now().UnixNano())
+	channelName := fmt.Sprintf("%s.%s", h.ID, timestamp)
 	token, err := channel.Create(c, channelName)
+	if err != nil {
+		c.Errorf("Error: %v", err)
+		return ""
+	}
+	listener := Listener{
+		Channel: channelName,
+		Timestamp: timestamp,
+		Admin: admin,
+		Open: false,
+	}
+	if t != nil {
+		listener.TeamID = t.ID
+	}
+	_, err = datastore.Put(c, datastore.NewIncompleteKey(c, listenerKind, h.Key), &listener)
 	if err != nil {
 		c.Errorf("Error: %v", err)
 		return ""
@@ -59,7 +69,7 @@ func GetToken(c appengine.Context, h *hunt.Hunt, t *team.Team, admin bool) strin
 
 func AddListener(c appengine.Context, channelName string) {
 	split := strings.Split(channelName, ".")
-	if len(split) != 3 {
+	if len(split) != 2 {
 		c.Errorf("Unexpected channel name: %s", channelName)
 		return
 	}
@@ -68,25 +78,18 @@ func AddListener(c appengine.Context, channelName string) {
 		c.Errorf("Channel without matching hunt: %s", channelName)
 		return
 	}
-	listener := Listener{
-		Channel: channelName,
-	}
-	if split[1] != unauthListener {
-		if split[1] == adminListener {
-			listener.Admin = true
-		} else {
-			t := team.ID(c, split[1])
-			if t == nil {
-				c.Errorf("Channel without matching team: %s", channelName)
-				return
-			}
-			listener.TeamID = t.ID
-		}
-	}
-	_, err := datastore.Put(c, datastore.NewIncompleteKey(c, listenerKind, h.Key), &listener)
+	var listeners []*Listener
+	keys, err := datastore.NewQuery(listenerKind).Ancestor(h.Key).Filter("Channel =", channelName).Limit(1).GetAll(c, &listeners)
 	if err != nil {
 		c.Errorf("Error: %v", err)
 		return
+	}
+	if len(listeners) > 0 {
+		listeners[0].Open = true
+		_, err := datastore.Put(c, keys[0], listeners[0])
+		if err != nil {
+			c.Errorf("Write: %v", err)
+		}
 	}
 }
 
@@ -137,7 +140,7 @@ func SendIngredientsUpdate(c appengine.Context, h *hunt.Hunt) {
 
 func sendAll(c appengine.Context, h *hunt.Hunt, m Message) {
 	var listeners []Listener
-	_, err := datastore.NewQuery(listenerKind).Ancestor(h.Key).GetAll(c, &listeners)
+	_, err := datastore.NewQuery(listenerKind).Ancestor(h.Key).Filter("Open =", true).GetAll(c, &listeners)
 	if err != nil {
 		c.Errorf("Send: %v", err)
 		return
@@ -152,7 +155,7 @@ func sendAll(c appengine.Context, h *hunt.Hunt, m Message) {
 
 func sendTeam(c appengine.Context, h *hunt.Hunt, t *team.Team, m Message) {
 	var listeners []Listener
-	_, err := datastore.NewQuery(listenerKind).Ancestor(h.Key).Filter("TeamID =", t.ID).GetAll(c, &listeners)
+	_, err := datastore.NewQuery(listenerKind).Ancestor(h.Key).Filter("TeamID =", t.ID).Filter("Open =", true).GetAll(c, &listeners)
 	if err != nil {
 		c.Errorf("Send: %v", err)
 		return
@@ -168,7 +171,7 @@ func sendTeam(c appengine.Context, h *hunt.Hunt, t *team.Team, m Message) {
 
 func sendAdmin(c appengine.Context, h *hunt.Hunt, m Message) {
 	var listeners []Listener
-	_, err := datastore.NewQuery(listenerKind).Ancestor(h.Key).Filter("Admin =", true).GetAll(c, &listeners)
+	_, err := datastore.NewQuery(listenerKind).Ancestor(h.Key).Filter("Admin =", true).Filter("Open =", true).GetAll(c, &listeners)
 	if err != nil {
 		c.Errorf("Send: %v", err)
 		return
