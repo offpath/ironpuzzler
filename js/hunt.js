@@ -180,7 +180,7 @@ app.controller('consoleCtrl', function($scope, api) {
 	api.addListener($scope);
     });
 
-app.controller('leaderboardCtrl', function ($scope, api) {
+app.controller('leaderboardCtrl', function ($scope, $mdToast, api) {
 	$scope.refresh = function() {
 	    api.getLeaderboard().success(function (response) {
 		    $scope.Leaderboard = response;
@@ -199,7 +199,7 @@ app.controller('leaderboardCtrl', function ($scope, api) {
 
 	$scope.submitAnswer = function(pid, answer) {
 	    api.submitAnswer(pid, answer).success(function (response) {
-		    window.alert(response);
+		    windo.alert(response);
 		});
 	}
 
@@ -328,13 +328,12 @@ app.controller('stateCtrl', function ($scope, $http, api) {
 	$scope.refresh();
     });
 
-app.controller('signinCtrl', function($scope, $cookies, api) {
+app.controller('signinCtrl', function($scope, $cookies, $mdToast, api) {
 	$scope.refresh = function() {
 	    api.getTeamInfo().success(function (response) {
 		    $scope.teamInfo = response;
 		    if (response.BadSignIn) {
-			// TODO(dneal): toast + clear cookies
-			window.alert("Bad password");
+			$mdToast.show($mdToast.simple().content("Bad password"));
 			$scope.logout()
 		    }
 		});

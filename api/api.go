@@ -198,7 +198,7 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			outcome = "Error, try again!"
 		} else if throttled {
-			outcome = "Throttled"
+			outcome = "Too many answer attempts, please wait a minute and try again"
 			adminconsole.Log(c, h, fmt.Sprintf("%s attempts to answer but is throttled", t.Name))
 		} else if correct {
 			outcome = "Correct!"
