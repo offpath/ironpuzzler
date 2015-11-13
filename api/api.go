@@ -205,7 +205,7 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 			broadcast.SendLeaderboardUpdate(c, h, p)
 			adminconsole.Log(c, h, fmt.Sprintf("%s correctly answers (%d) %s", t.Name, p.Number, p.Name))
 		} else {
-			outcome = fmt.Sprintf("\"%s\" is incorrect", r.FormValue("answer"))
+			outcome = fmt.Sprintf("\"%s\" is an incorrect guess for %s", r.FormValue("answer"), p.Name)
 			adminconsole.Log(c, h, fmt.Sprintf("%s incorrectly answers [%s] for (%d) %s", t.Name, r.FormValue("answer"), p.Number, p.Name))
 		}
 		err = enc.Encode(outcome)
