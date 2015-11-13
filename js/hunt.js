@@ -199,7 +199,7 @@ app.controller('leaderboardCtrl', function ($scope, $mdToast, api) {
 
 	$scope.submitAnswer = function(pid, answer) {
 	    api.submitAnswer(pid, answer).success(function (response) {
-		    windo.alert(response);
+		    window.alert(response);
 		});
 	}
 
