@@ -7,6 +7,7 @@ import (
 	"appengine"
 	"appengine/datastore"
 
+	"fmt"
 	"strings"
 	"time"
 )
@@ -198,6 +199,7 @@ func All(c appengine.Context, h *hunt.Hunt, t *team.Team) []*Puzzle {
 func New(c appengine.Context, h *hunt.Hunt, t *team.Team, number int, paper bool) *Puzzle {
 	newPuzzle := &Puzzle{
 		Number: number,
+		Name: fmt.Sprintf("Puzzle #%d", number),
 		Paper: paper,
 		Team: t.Key,
 		PointValue: maxPointValue,

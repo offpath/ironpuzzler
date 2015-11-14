@@ -13,7 +13,7 @@
 	<md-divider></md-divider>
       </md-list-item>
       <md-list-item ng-repeat="p in puzzles.Puzzles">
-	<form layout="row" layout-padding flex>
+	<form name="form" layout="row" layout-padding flex>
 	  <div flex="5">{{p.Number}}</div>
 	  <div flex="20">
 	    <span ng-show="!puzzles.Editable">
@@ -21,7 +21,7 @@
 	    </span>
 	    <span ng-show="puzzles.Editable">
 	      <md-input-container md-no-float>
-		<input ng-model="p.newName" placeholder="{{p.Name}}">
+		<input ng-model="p.Name" name="newName">
 	      </md-input-container>
 	    </span>
 	  </div>
@@ -31,13 +31,13 @@
 	    </span>
 	    <span ng-show="puzzles.Editable">
 	      <md-input-container md-no-float>
-		<input ng-model="p.newAnswer" placeholder="{{p.Answer}}">
+		<input ng-model="p.Answer" name="newAnswer">
 	      </md-input-container>
 	    </span>
 	  </div>
 	  <div flex="10">{{p.Paper}}</div>
 	  <div flex="20">{{p.TeamName}}</div>
-	  <md-button ng-show="puzzles.Editable" class="md-primary md-raised" ng-click="updatePuzzle(p.ID, p.newName, p.newAnswer)">Update</md-button>
+	  <md-button ng-show="puzzles.Editable" ng-disabled="form.newName.$pristine && form.newAnswer.$pristine" class="md-primary md-raised" ng-click="updatePuzzle(p.ID, p.Name, p.Answer)">Update</md-button>
 	  <div flex></div>
 	  <md-divider ng-if="!$last"></md-divider>
 	</form>
