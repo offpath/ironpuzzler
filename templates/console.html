@@ -3,7 +3,7 @@
     <h3>Admin Console</h3>
   </md-toolbar>
   <md-card-content layout-padding>
-    <span ng-repeat="line in Lines">
+    <span ng-repeat="line in Lines track by $index">
       {{line}}<br>
     </span>
   </md-card-content>
