@@ -41,17 +41,16 @@ func (t *Team) Write(c appengine.Context) {
 
 func (t *Team) Throttle(c appengine.Context) bool {
 	now := time.Now()
-	if len(t.Attempts) < 2 {
+	if len(t.Attempts) < 4 {
 		t.Attempts = append(t.Attempts, now)
 		t.Write(c)
 		return false
 	}
 	if now.Sub(t.Attempts[0]).Minutes() > 1.0 {
-		t.Attempts[0], t.Attempts[1] = t.Attempts[1], now
+		t.Attempts[0], t.Attempts[1], t.Attempts[2], t.Attempts[3] = t.Attempts[1], t.Attempts[2], t.Attempts[3], now
 		t.Write(c)
 		return false
 	}
-	c.Errorf("Throttle!!")
 	return true
 }
 
