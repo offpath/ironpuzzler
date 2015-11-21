@@ -90,9 +90,19 @@ func BuildFinalTally(c appengine.Context, h *hunt.Hunt) {
 			if p.Team.Equal(t.Key) {
 				continue
 			}
-			puzzleMap[p.Number].Fun += votes[voteIndex]
-			puzzleMap[p.Number].Presentation += votes[voteIndex+1]
-			puzzleMap[p.Number].Ingredients += votes[voteIndex+2]
+			// Don't score points for Viscosity Breakdown,
+			// since they dropped out.
+			//
+			// TODO(dneal): This is a totally brutal hack
+			// and makes the normalization not exactly
+			// accurate, but it's good enough. Remove as
+			// soon as this hunt is done and make it
+			// possible for a team to drop out mid-way.
+			if p.Number != 2 && p.Number != 10 {
+				puzzleMap[p.Number].Fun += votes[voteIndex]
+				puzzleMap[p.Number].Presentation += votes[voteIndex+1]
+				puzzleMap[p.Number].Ingredients += votes[voteIndex+2]
+			}
 			voteIndex += 3
 		}
 	}
