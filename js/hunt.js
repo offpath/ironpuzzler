@@ -412,9 +412,12 @@ app.controller('surveyCtrl', function($scope, api) {
     });
 
 app.controller('finalScoresCtrl', function($scope, api) {
-	$scope.get = function() {
+	$scope.refresh = function() {
 	    api.getFinalScores().success(function (response) {
-		    console.log(response);
+		    $scope.finalScores = response;
 		});
 	}
+
+	api.addListener($scope);
+	$scope.refresh();
     });

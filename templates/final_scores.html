@@ -1,6 +1,71 @@
-<md-card ng-controller="finalScoresCtrl">
+<md-card ng-controller="finalScoresCtrl" ng-show="finalScores.Display">
   <md-toolbar class="md-accent" layout-padding>
     <h3>Final Scores</h3>
   </md-toolbar>
-  <md-button class="md-primary md-raised" ng-click="get()">Get!</md-button>
+  <md-card-content layout-padding>
+    <!-- Final results: total, solving, voting -->
+    <h3>Final Results</h3>
+    <table style="border-spacing:10px">
+      <tr>
+	<td></td>
+	<td>Total</td>
+	<td>Solving</td>
+	<td>Voting</td>
+      </tr>
+      <tr ng-repeat="s in finalScores.Scores | orderBy:'-FinalScore'">
+	<td>{{s.Name}}</td>
+	<td>{{s.FinalScore}}</td>
+	<td>{{s.TotalSolvePoints}}</td>
+	<td>{{s.TotalVotingPoints}}</td>
+      </tr>
+    </table>
+    <!-- Results: solving: Total, p1, p2, ... -->
+    <h3>Solving</h3>
+    <table style="border-spacing:10px">
+      <tr>
+	<td></td>
+	<td>Total</td>
+	<td ng-repeat="p in finalScores.Scores[0].SolvePoints track by $index">{{$index}}</td>
+      </tr>
+      <tr ng-repeat="s in finalScores.Scores | orderBy:'-TotalSolvePoints'">
+	<td>{{s.Name}}</td>
+	<td>{{s.TotalSolvePoints}}</td>
+	<td ng-repeat="p in s.SolvePoints track by $index">{{p}}</td>
+      </tr>
+    </table>
+    <!-- Results: voting: Total, paper fun, paper pres, paper ingr, non-paper fun, pres, ingr -->
+    <h3>Voting</h3>
+    <table style="border-spacing:10px">
+      <tr>
+	<td></td>
+	<td>Total</td>
+	<td colspan="4" align="center">Paper</td>
+	<td colspan="4" align="center">Nonpaper</td>
+      </tr>
+      <tr>
+	<td></td>
+	<td></td>
+	<td>Fun</td>
+	<td>Pres.</td>
+	<td>Ingr.</td>
+	<td>Score</td>
+	<td>Fun</td>
+	<td>Pres.</td>
+	<td>Ingr.</td>
+	<td>Score</td>
+      </tr>
+      <tr ng-repeat="s in finalScores.Scores | orderBy:'-TotalVotingPoints'">
+	<td>{{s.Name}}</td>
+	<td>{{s.TotalVotingPoints}}</td>
+	<td>{{s.PaperPoints.Fun}}</td>
+	<td>{{s.PaperPoints.Presentation}}</td>
+	<td>{{s.PaperPoints.Ingredients}}</td>
+	<td>{{s.PaperPoints.Score}}</td>
+	<td>{{s.NonPaperPoints.Fun}}</td>
+	<td>{{s.NonPaperPoints.Presentation}}</td>
+	<td>{{s.NonPaperPoints.Ingredients}}</td>
+	<td>{{s.NonPaperPoints.Score}}</td>
+      </tr>
+    </table>
+  </md-card-content>
 </md-card>

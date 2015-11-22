@@ -31,6 +31,11 @@ type FinalScore struct {
 	FinalScore float32
 }
 
+type FinalScores struct {
+	Display bool
+	Scores []FinalScore
+}
+
 const (
 	finalScoreKind = "finalscore"
 )
@@ -118,13 +123,16 @@ func BuildFinalTally(c appengine.Context, h *hunt.Hunt) {
 	}
 }
 
-func Get(c appengine.Context, h *hunt.Hunt) []*FinalScore {
-	var fs []*FinalScore
-	_, err := datastore.NewQuery(finalScoreKind).Ancestor(h.Key).GetAll(c, &fs)
-	if err != nil {
-		c.Errorf("Error: %v", err)
+func Get(c appengine.Context, h *hunt.Hunt, admin bool) FinalScores {
+	result := FinalScores{}
+	if h.State == hunt.StateDone || (admin && h.State == hunt.StateTallyingDone) {
+		_, err := datastore.NewQuery(finalScoreKind).Ancestor(h.Key).GetAll(c, &result.Scores)
+		if err != nil {
+			c.Errorf("Error: %v", err)
+		}
+		result.Display = true
 	}
-	return fs
+	return result
 }
 
 func normalize(arr []float32) {

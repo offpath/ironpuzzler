@@ -209,6 +209,9 @@ func HuntHandler(w http.ResponseWriter, r *http.Request) {
 			adminconsole.Log(c, h, fmt.Sprintf("%s incorrectly answers [%s] for (%d) %s", t.Name, r.FormValue("answer"), p.Number, p.Name))
 		}
 		err = enc.Encode(outcome)
+	case "finalscores":
+		finalScores := tally.Get(c, h, false)
+		err = enc.Encode(finalScores)
 	}
 
 
@@ -357,10 +360,8 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 			err = enc.Encode(info)
 		}
 	case "finalscores":
-		if h != nil && h.State > hunt.StateSurveying {
-			finalScores := tally.Get(c, h)
-			err = enc.Encode(finalScores)
-		}
+		finalScores := tally.Get(c, h, true)
+		err = enc.Encode(finalScores)
 	}
 	
 	if err != nil {
