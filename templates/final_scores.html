@@ -25,7 +25,7 @@
       <tr>
 	<td></td>
 	<td>Total</td>
-	<td ng-repeat="p in finalScores.Scores[0].SolvePoints track by $index">{{$index}}</td>
+	<td ng-repeat="p in finalScores.Scores[0].SolvePoints track by $index">{{$index+1}}</td>
       </tr>
       <tr ng-repeat="s in finalScores.Scores | orderBy:'-TotalSolvePoints'">
 	<td>{{s.Name}}</td>
